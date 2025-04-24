@@ -7,6 +7,11 @@ public class Utente {
     private ArrayList<PermessoBacheca> bacheche = new ArrayList<PermessoBacheca>();
     private ArrayList<PermessoToDo> todo = new ArrayList<PermessoToDo>();
 
+    public Utente(String username_utente, String password_utente) {
+        username = username_utente;
+        password = password_utente;
+    }
+
     public boolean login(String username, String password) {
         if (this.username == username && this.password == password) {
             return true;
