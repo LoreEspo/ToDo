@@ -1,4 +1,6 @@
-public class Attivita 
+package model;
+
+public class Attivita
 {
     private String titolo; 
     private boolean completato = false;
@@ -7,4 +9,4 @@ public class Attivita
     {
         return completato;
     }
-} 
+}

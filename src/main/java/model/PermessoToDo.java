@@ -1,3 +1,5 @@
+package model;
+
 public class PermessoToDo {
     public boolean modifica;
     public boolean eliminazione;

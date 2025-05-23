@@ -1,3 +1,5 @@
+package model;
+
 public class ToDo {
     private String titolo;
     private String data;

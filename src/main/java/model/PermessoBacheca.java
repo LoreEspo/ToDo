@@ -1,3 +1,5 @@
+package model;
+
 public class PermessoBacheca {
     public boolean modifica;
     public boolean eliminazione;
