@@ -137,20 +137,27 @@ public class Controller {
         todo.setCompletato(completato);
     }
 
-    public void aggiungiAttivita(ToDoChecklist todo) {
+    public void aggiungiAttivita(Integer indice) {
         if (!isBachecaAperta()) {
             return;
         }
+
+        PermessoToDo permesso = toDoMap.get(indice);
+        ToDoChecklist todo = (ToDoChecklist) permesso.getToDo();
 
         todo.aggiungiAttivita(new Attivita());
     }
 
-    public void rimuoviAttivita(ToDoChecklist todo, Attivita attivita) {
+    public void rimuoviAttivita(Integer indiceTodo, int indiceAttivita) {
         if (!isBachecaAperta()) {
             return;
         }
 
-        todo.eliminaAttivita(attivita);
+        PermessoToDo permesso = toDoMap.get(indiceTodo);
+        ToDoChecklist todo = (ToDoChecklist) permesso.getToDo();
+
+        todo.eliminaAttivita(indiceAttivita);
+
     }
 
 

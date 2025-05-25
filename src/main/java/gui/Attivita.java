@@ -1,6 +1,7 @@
 package gui;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class Attivita {
     private JPanel panel;
@@ -8,8 +9,13 @@ public class Attivita {
     private JCheckBox stato;
     private JButton cancellaButton;
 
+
     public JPanel getPanel() {
         return panel;
+    }
+
+    public JButton getCancellaButton() {
+        return cancellaButton;
     }
 
     public Attivita setTitolo(String titolo) {

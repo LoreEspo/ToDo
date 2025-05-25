@@ -33,7 +33,7 @@ public class Bacheca {
                 BorderFactory.createEmptyBorder(20, 20, 20, 20)
         );
         todoContainer.setLayout(
-                new GridLayout(0, 4, 0, 30)
+                new GridLayout(0, 4, 50, 30)
         );
 
         // Azioni
@@ -78,17 +78,30 @@ public class Bacheca {
     public void aggiungiToDo(boolean checklist) {
         Integer indice = controller.aggiungiToDo(checklist);
 
-        JPanel wrapper = new JPanel();
+        // JPanel wrapper = new JPanel();
 
-        ToDo guiToDo = checklist ? new ToDoChecklist(controller) : new ToDo(controller);
-        guiToDo.setIndice(indice);
+        if (checklist) {
+            ToDoChecklist guiToDo = new ToDoChecklist(controller);
+            guiToDo.setIndice(indice);
 
-        guiToDo.getCancellaButton().addActionListener(_ -> {
-            rimuoviToDo(wrapper, indice);
-        });
+            guiToDo.getCancellaButton().addActionListener(_ -> {
+                rimuoviToDo(guiToDo.getPanel(), indice);
+            });
 
-        wrapper.add(guiToDo.getPanel());
-        todoContainer.add(wrapper);
+            // wrapper.add(guiToDo.getPanel());
+            todoContainer.add(guiToDo.getPanel());
+        } else {
+            ToDo guiToDo = new ToDo(controller);
+            guiToDo.setIndice(indice);
+
+            guiToDo.getCancellaButton().addActionListener(_ -> {
+                rimuoviToDo(guiToDo.getPanel(), indice);
+            });
+
+            // wrapper.add(guiToDo.getPanel());
+            todoContainer.add(guiToDo.getPanel());
+        }
+        // todoContainer.add(wrapper);
         todoContainer.repaint();
         todoContainer.revalidate();
     }

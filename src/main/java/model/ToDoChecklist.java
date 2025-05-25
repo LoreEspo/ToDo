@@ -23,4 +23,8 @@ public class ToDoChecklist extends ToDo {
         lista.remove(attivita);
     }
 
+    public void eliminaAttivita(int indiceAttivita) {
+        lista.remove(indiceAttivita);
+    }
+
 }

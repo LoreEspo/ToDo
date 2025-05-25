@@ -18,10 +18,10 @@
               <text value="Cancella"/>
             </properties>
           </component>
-          <component id="acb1" class="javax.swing.JLabel" binding="titolo">
+          <component id="32576" class="javax.swing.JTextField" binding="titolo">
             <constraints border-constraint="Center"/>
             <properties>
-              <text value="Label"/>
+              <text value=""/>
             </properties>
           </component>
         </children>
