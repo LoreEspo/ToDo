@@ -4,7 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class DatiBacheca extends JDialog {
+public class DatiBachecaDialog extends JDialog {
 	private JPanel contentPane;
 	private JButton buttonOK;
 	private JButton buttonCancel;
@@ -14,7 +14,7 @@ public class DatiBacheca extends JDialog {
 
 	private boolean ok = false;
 
-	public DatiBacheca() {
+	public DatiBachecaDialog() {
 		setContentPane(contentPane);
 		setModal(true);
 		getRootPane().setDefaultButton(buttonOK);
@@ -80,8 +80,8 @@ public class DatiBacheca extends JDialog {
 		return descrizione.getText();
 	}
 
-	public static DatiBacheca create() {
-		DatiBacheca dialog = new DatiBacheca();
+	public static DatiBachecaDialog create() {
+		DatiBachecaDialog dialog = new DatiBachecaDialog();
 		dialog.pack();
 		dialog.setVisible(true);
 		return dialog;

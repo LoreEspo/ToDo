@@ -62,7 +62,7 @@ public class MainMenu {
     }
 
     private void creaBacheca() {
-        DatiBacheca dialog = DatiBacheca.create();
+        DatiBachecaDialog dialog = DatiBachecaDialog.create();
         if (!dialog.isOk()) return;
 
         controller.creaNuovaBacheca(

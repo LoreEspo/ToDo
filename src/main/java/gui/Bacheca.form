@@ -31,32 +31,18 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="57a10" class="javax.swing.JButton" binding="aggiungiButton" default-binding="true">
+              <component id="5d62" class="javax.swing.JButton" binding="todoButton">
                 <constraints border-constraint="Center"/>
                 <properties>
-                  <text value="Aggiungi ultimo"/>
-                  <verticalAlignment value="0"/>
+                  <text value="To do"/>
                 </properties>
               </component>
-              <grid id="5e2a6" layout-manager="BorderLayout" hgap="0" vgap="0">
-                <constraints border-constraint="East"/>
-                <properties/>
-                <border type="none"/>
-                <children>
-                  <component id="5d62" class="javax.swing.JButton" binding="todoButton">
-                    <constraints border-constraint="Center"/>
-                    <properties>
-                      <text value="To do"/>
-                    </properties>
-                  </component>
-                  <component id="73bcf" class="javax.swing.JButton" binding="checklistButton">
-                    <constraints border-constraint="South"/>
-                    <properties>
-                      <text value="Checklist"/>
-                    </properties>
-                  </component>
-                </children>
-              </grid>
+              <component id="73bcf" class="javax.swing.JButton" binding="checklistButton">
+                <constraints border-constraint="South"/>
+                <properties>
+                  <text value="Checklist"/>
+                </properties>
+              </component>
             </children>
           </grid>
           <grid id="a4556" layout-manager="BorderLayout" hgap="0" vgap="0">
