@@ -3,39 +3,60 @@ package model;
 import java.util.ArrayList;
 
 public class Bacheca {
-    enum NomeBacheca {
-        UNIVERSITA,
-        LAVORO,
-        TEMPO_LIBERO,
-    }
+	public enum NomeBacheca {
+		UNIVERSITA,
+		LAVORO,
+		TEMPO_LIBERO,
+	}
 
-    private NomeBacheca titolo;
-    private String descrizione;
-    private ArrayList<PermessoBacheca> utenti = new ArrayList<PermessoBacheca>();
-    private ArrayList<ToDo> todo = new ArrayList<ToDo>();
+	private NomeBacheca titolo;
+	private String nome;
+	private String descrizione;
+	private ArrayList<PermessoBacheca> utenti = new ArrayList<PermessoBacheca>();
+	private ArrayList<ToDo> todo = new ArrayList<ToDo>();
 
-    public Bacheca(NomeBacheca titolo_bacheca, String descrizione_bacheca) {
-        titolo = titolo_bacheca;
-        descrizione = descrizione_bacheca;
-    }
+	private Integer id = -1;
 
-    public void SetTitolo(NomeBacheca nuovo_titolo) {
-        titolo = nuovo_titolo;
-    }
 
-    public void SetDescrizione(String nuova_descrizione) {
-        descrizione = nuova_descrizione;
-    }
+	public Bacheca(String nome_bacheca, NomeBacheca titolo_bacheca, String descrizione_bacheca) {
+		nome = nome_bacheca;
+		titolo = titolo_bacheca;
+		descrizione = descrizione_bacheca;
+	}
 
-    public void AggiungiPermesso(PermessoBacheca permesso) {
-        utenti.add(permesso);
-    }
+	public Integer getId() {
+		return id;
+	}
 
-    public void AggiungiToDo(ToDo nuovo_todo) {
-        todo.add(nuovo_todo);
-    }
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-    public void RimuoviToDo(ToDo vecchio_todo) {
-        todo.remove(vecchio_todo);
-    }
+	public void setTitolo(NomeBacheca nuovo_titolo) {
+		titolo = nuovo_titolo;
+	}
+
+	public void setNome(String nome_bacheca) {
+		nome = nome_bacheca;
+	}
+
+	public String getNome() {
+		return nome;
+	}
+
+	public void setDescrizione(String nuova_descrizione) {
+		descrizione = nuova_descrizione;
+	}
+
+	public void aggiungiPermesso(PermessoBacheca permesso) {
+		utenti.add(permesso);
+	}
+
+	public void aggiungiToDo(ToDo nuovo_todo) {
+		todo.add(nuovo_todo);
+	}
+
+	public void rimuoviToDo(ToDo vecchio_todo) {
+		todo.remove(vecchio_todo);
+	}
 }

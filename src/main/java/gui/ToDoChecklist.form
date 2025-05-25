@@ -15,7 +15,7 @@
           <component id="a6647" class="javax.swing.JButton" binding="cancellaButton">
             <constraints border-constraint="East"/>
             <properties>
-              <text value="Button"/>
+              <text value="Cancella"/>
             </properties>
           </component>
           <component id="acb1" class="javax.swing.JLabel" binding="titolo">
@@ -30,7 +30,14 @@
         <constraints border-constraint="Center"/>
         <properties/>
         <border type="none"/>
-        <children/>
+        <children>
+          <component id="1eedc" class="javax.swing.JButton" binding="aggiungiAttivitaButton">
+            <constraints border-constraint="South"/>
+            <properties>
+              <text value="Aggiungi attività"/>
+            </properties>
+          </component>
+        </children>
       </grid>
     </children>
   </grid>

@@ -12,17 +12,17 @@ public class PermessoBacheca {
             boolean condivisione) {
         this.utente = utente;
         this.bacheca = bacheca;
-        bacheca.AggiungiPermesso(this);
+        bacheca.aggiungiPermesso(this);
         this.modifica = modifica;
         this.eliminazione = eliminazione;
         this.condivisione = condivisione;
     }
 
-    public boolean Possessore(Utente possessore) {
-        return possessore == utente;
+    public boolean possessore(Utente utente_possessore) {
+        return utente_possessore == utente;
     }
 
-    public Bacheca GetBacheca() {
+    public Bacheca getBacheca() {
         return bacheca;
     }
 }

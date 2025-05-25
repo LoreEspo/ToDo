@@ -14,11 +14,11 @@ public class PermessoToDo {
         this.eliminazione = eliminazione;
     }
 
-    public boolean Possessore(Utente possessore) {
+    public boolean possessore(Utente possessore) {
         return possessore == utente;
     }
 
-    public ToDo GetToDo() {
+    public ToDo getToDo() {
         return todo;
     }
 }

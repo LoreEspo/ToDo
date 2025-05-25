@@ -6,20 +6,20 @@ public class ToDoChecklist extends ToDo {
 
     private ArrayList<Attivita> lista = new ArrayList<Attivita>();
 
-    public boolean Completato() {
+    public boolean completato() {
         for (Attivita attivita : lista) {
-            if (!attivita.Completato()) {
+            if (!attivita.completato()) {
                 return false;
             }
         }
         return true;
     }
 
-    public void AggiungiAttivita(Attivita attivita) {
+    public void aggiungiAttivita(Attivita attivita) {
         lista.add(attivita);
     }
 
-    public void EliminaAttivita(Attivita attivita) {
+    public void eliminaAttivita(Attivita attivita) {
         lista.remove(attivita);
     }
 

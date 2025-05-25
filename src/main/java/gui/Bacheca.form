@@ -17,23 +17,68 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="57a10" class="javax.swing.JButton" binding="aggiungiButton" default-binding="true">
+          <component id="fd11f" class="javax.swing.JLabel" binding="nome">
             <constraints/>
             <properties>
-              <text value="Aggiungi"/>
-              <verticalAlignment value="0"/>
+              <text value="Nome"/>
             </properties>
           </component>
-          <hspacer id="38c81">
+          <hspacer id="80e99">
             <constraints/>
           </hspacer>
-          <component id="963d8" class="javax.swing.JButton" binding="condividiButton">
+          <grid id="ce257" layout-manager="BorderLayout" hgap="0" vgap="0">
             <constraints/>
-            <properties>
-              <label value="Condividi"/>
-              <text value="Condividi"/>
-            </properties>
-          </component>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="57a10" class="javax.swing.JButton" binding="aggiungiButton" default-binding="true">
+                <constraints border-constraint="Center"/>
+                <properties>
+                  <text value="Aggiungi ultimo"/>
+                  <verticalAlignment value="0"/>
+                </properties>
+              </component>
+              <grid id="5e2a6" layout-manager="BorderLayout" hgap="0" vgap="0">
+                <constraints border-constraint="East"/>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="5d62" class="javax.swing.JButton" binding="todoButton">
+                    <constraints border-constraint="Center"/>
+                    <properties>
+                      <text value="To do"/>
+                    </properties>
+                  </component>
+                  <component id="73bcf" class="javax.swing.JButton" binding="checklistButton">
+                    <constraints border-constraint="South"/>
+                    <properties>
+                      <text value="Checklist"/>
+                    </properties>
+                  </component>
+                </children>
+              </grid>
+            </children>
+          </grid>
+          <grid id="a4556" layout-manager="BorderLayout" hgap="0" vgap="0">
+            <constraints/>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="963d8" class="javax.swing.JButton" binding="condividiButton">
+                <constraints border-constraint="Center"/>
+                <properties>
+                  <label value="Condividi"/>
+                  <text value="Condividi"/>
+                </properties>
+              </component>
+              <component id="4f54" class="javax.swing.JButton" binding="chiudiButton">
+                <constraints border-constraint="South"/>
+                <properties>
+                  <text value="Chiudi"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
         </children>
       </grid>
       <scrollpane id="e8792" binding="scrollPane">
