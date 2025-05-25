@@ -31,12 +31,25 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="1eedc" class="javax.swing.JButton" binding="aggiungiAttivitaButton">
+          <grid id="22640" layout-manager="BorderLayout" hgap="0" vgap="0">
             <constraints border-constraint="South"/>
-            <properties>
-              <text value="Aggiungi attività"/>
-            </properties>
-          </component>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="1eedc" class="javax.swing.JButton" binding="aggiungiAttivitaButton">
+                <constraints border-constraint="Center"/>
+                <properties>
+                  <text value="Aggiungi attività"/>
+                </properties>
+              </component>
+              <component id="14263" class="javax.swing.JButton" binding="condividiButton" default-binding="true">
+                <constraints border-constraint="East"/>
+                <properties>
+                  <text value="Condividi"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
         </children>
       </grid>
     </children>

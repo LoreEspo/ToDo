@@ -4,11 +4,11 @@ import java.util.ArrayList;
 
 public class ToDoChecklist extends ToDo {
 
-    private ArrayList<Attivita> lista = new ArrayList<Attivita>();
+    private ArrayList<Attivita> listaAttivita = new ArrayList<Attivita>();
 
-    public boolean completato() {
-        for (Attivita attivita : lista) {
-            if (!attivita.completato()) {
+    public boolean getCompletato() {
+        for (Attivita attivita : listaAttivita) {
+            if (!attivita.getCompletato()) {
                 return false;
             }
         }
@@ -16,15 +16,15 @@ public class ToDoChecklist extends ToDo {
     }
 
     public void aggiungiAttivita(Attivita attivita) {
-        lista.add(attivita);
+        listaAttivita.add(attivita);
     }
 
     public void eliminaAttivita(Attivita attivita) {
-        lista.remove(attivita);
+        listaAttivita.remove(attivita);
     }
 
     public void eliminaAttivita(int indiceAttivita) {
-        lista.remove(indiceAttivita);
+        listaAttivita.remove(indiceAttivita);
     }
 
 }

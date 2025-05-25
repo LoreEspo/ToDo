@@ -3,14 +3,14 @@ package model;
 public class ToDo {
     private String titolo;
     private String data;
-    private String link_attivita;
+    private String linkAttivita;
     private byte[] immagine; // Temporaneamente String
-    private String colore_sfondo;
+    private String coloreSfondo;
     private boolean completato = false;
 
     private PermessoToDo utente;
 
-    public boolean completato() {
+    public boolean getCompletato() {
         return completato;
     }
 
@@ -37,11 +37,11 @@ public class ToDo {
     }
 
     public String getLinkAttivita() {
-        return link_attivita;
+        return linkAttivita;
     }
 
     public void setLinkAttivita(String nuovo_link) {
-        link_attivita = nuovo_link;
+        linkAttivita = nuovo_link;
     }
 
     public byte[] getImmagine() {

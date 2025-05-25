@@ -21,7 +21,6 @@ public class Bacheca {
     private final JFrame frame;
     private final JFrame mainFrame;
 
-    private boolean ultimoChecklist = false;
 
     public Bacheca(Controller controller, JFrame frame, JFrame mainFrame) {
         this.controller = controller;
@@ -37,16 +36,10 @@ public class Bacheca {
         );
 
         // Azioni
-        aggiungiButton.addActionListener(_ -> {
-            aggiungiToDo(ultimoChecklist);
-        });
         todoButton.addActionListener(_ -> {
-            ultimoChecklist = false;
             aggiungiToDo(false);
         });
         checklistButton.addActionListener(_ -> {
-            // TODO: I checklist aggiunti sono uguali ai ToDo. Risolvere.
-            ultimoChecklist = true;
             aggiungiToDo(true);
         });
 
@@ -57,17 +50,6 @@ public class Bacheca {
         return panel;
     }
 
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("Bacheca");
-        Bacheca bacheca = new Bacheca(new Controller(), frame, null);
-        frame.setContentPane(bacheca.panel);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
-        frame.setMinimumSize(new Dimension(200, 200));
-        frame.setSize(new Dimension(800, 600));
-
-    }
 
     public void chiudi() {
         controller.chiudiBacheca();

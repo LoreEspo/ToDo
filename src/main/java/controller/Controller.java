@@ -33,10 +33,6 @@ public class Controller {
         return true;
     }
 
-    public Bacheca getBacheca() {
-        return bachecaAperta;
-    }
-
     public boolean isLogged() {
         return utente != null;
     }

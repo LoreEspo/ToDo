@@ -13,6 +13,7 @@ public class ToDoChecklist {
     private JPanel panelTitolo;
     private JPanel containerAttivita;
     private JButton aggiungiAttivitaButton;
+    private JButton condividiButton;
 
     private Controller controller;
     private Integer indice = -1;
