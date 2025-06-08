@@ -5,8 +5,8 @@ public class PermessoBacheca {
     public boolean eliminazione;
     public boolean condivisione;
 
-    private Utente utente;
-    private Bacheca bacheca;
+    private final Utente utente;
+    private final Bacheca bacheca;
 
     public PermessoBacheca(Utente utente, Bacheca bacheca, boolean modifica, boolean eliminazione,
             boolean condivisione) {

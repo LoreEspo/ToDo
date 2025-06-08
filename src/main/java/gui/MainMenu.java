@@ -10,6 +10,8 @@ public class MainMenu {
     private JPanel topBar;
     private JButton creaBachecaButton;
     private JPanel listaBacheche;
+    private JButton logoutButton;
+    private JLabel usernameLabel;
     private Controller controller;
     private JFrame frame;
 
@@ -23,6 +25,7 @@ public class MainMenu {
 
     public static void main(String[] args) {
         MainMenu mainMenu = new MainMenu(new Controller());
+        mainMenu.logoutButton.setVisible(false);
 
         JFrame frame = new JFrame("ToDo app");
         mainMenu.frame = frame;
@@ -33,8 +36,9 @@ public class MainMenu {
         frame.setMinimumSize(new Dimension(200, 200));
         frame.setSize(800, 600);
 
-        // Test
-        mainMenu.controller.login("testUsername", "testPassword");
+        LoginDialog loginDialog = LoginDialog.create(mainMenu.controller);
+        mainMenu.usernameLabel.setText(mainMenu.controller.getLoggedUsername());
+        mainMenu.logoutButton.setVisible(true);
     }
 
     private void aggiungiBachecaAllaLista(String nome, String titolo, Integer idBacheca) {

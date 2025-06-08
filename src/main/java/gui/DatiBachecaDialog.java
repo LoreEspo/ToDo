@@ -3,6 +3,7 @@ package gui;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Arrays;
 
 public class DatiBachecaDialog extends JDialog {
 	private JPanel contentPane;
@@ -18,6 +19,10 @@ public class DatiBachecaDialog extends JDialog {
 		setContentPane(contentPane);
 		setModal(true);
 		getRootPane().setDefaultButton(buttonOK);
+
+		titolo.addItem("Università");
+		titolo.addItem("Lavoro");
+		titolo.addItem("Tempo libero");
 
 		buttonOK.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -60,7 +65,6 @@ public class DatiBachecaDialog extends JDialog {
 	}
 
 	private void onCancel() {
-		// add your code here if necessary
 		dispose();
 	}
 

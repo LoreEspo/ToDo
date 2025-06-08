@@ -15,6 +15,10 @@ public class Utente {
 	}
 
 
+	public String getUsername() {
+		return username;
+	}
+
 	public PermessoBacheca creaBacheca(String nome, Bacheca.NomeBacheca titolo, String descrizione) {
 		Bacheca bacheca = new Bacheca(nome, titolo, descrizione);
 		PermessoBacheca permesso = new PermessoBacheca(this, bacheca, true, true, true);

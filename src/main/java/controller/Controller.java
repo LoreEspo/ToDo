@@ -1,7 +1,12 @@
 package controller;
 
+import dao.UtenteDAO;
+import db.ConnessioneDatabase;
 import model.*;
+import postgreDAO.UtentePostgreDAO;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
@@ -16,18 +21,23 @@ public class Controller {
 
 
 
-    public boolean login(String username, String password) {
-		// Autenticazione con database
-        // Restituisce false se errato
+    public boolean login(String username, String password) throws SQLException {
+        UtenteDAO udao = new UtentePostgreDAO();
+
+        if (!udao.login(username, password)) {
+            return false;
+        }
 
         utente = new Utente(username, password);
         return true;
     }
 
-    public boolean registrazione(String username, String password) {
-        // Controlla che l'username sia disponibile
-        // Se non disponibile, restituisce false
-        // Carica nel database il nuovo utente
+    public boolean registrazione(String username, String password) throws SQLException {
+        UtenteDAO udao = new UtentePostgreDAO();
+
+        if (!udao.registrazione(username, password)) {
+            return false;
+        }
 
         utente = new Utente(username, password);
         return true;
@@ -35,6 +45,13 @@ public class Controller {
 
     public boolean isLogged() {
         return utente != null;
+    }
+
+    public String getLoggedUsername() {
+        if (isLogged()) {
+            return utente.getUsername();
+        }
+        return "";
     }
 
     public boolean isBachecaAperta() {
@@ -155,7 +172,6 @@ public class Controller {
         todo.eliminaAttivita(indiceAttivita);
 
     }
-
 
 
 }

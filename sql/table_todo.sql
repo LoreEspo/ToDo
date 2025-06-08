@@ -1,0 +1,3 @@
+CREATE TABLE TODO (
+	idtodo INT 
+);
