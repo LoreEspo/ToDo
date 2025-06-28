@@ -3,6 +3,8 @@ package gui;
 import controller.Controller;
 
 import javax.swing.*;
+import javax.swing.UIManager;
+import javax.swing.border.Border;
 import java.awt.*;
 
 public class MainMenu {
@@ -21,11 +23,15 @@ public class MainMenu {
         listaBacheche.setLayout(new BoxLayout(listaBacheche, BoxLayout.Y_AXIS));
 
         creaBachecaButton.addActionListener(_ -> {creaBacheca();});
+        logoutButton.addActionListener(_ -> {logout();});
+        logoutButton.setVisible(false);
+
+        topBar.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        usernameLabel.setBorder(BorderFactory.createEmptyBorder(0, 20, 0, 30));
     }
 
     public static void main(String[] args) {
         MainMenu mainMenu = new MainMenu(new Controller());
-        mainMenu.logoutButton.setVisible(false);
 
         JFrame frame = new JFrame("ToDo app");
         mainMenu.frame = frame;
@@ -36,9 +42,25 @@ public class MainMenu {
         frame.setMinimumSize(new Dimension(200, 200));
         frame.setSize(800, 600);
 
-        LoginDialog loginDialog = LoginDialog.create(mainMenu.controller);
-        mainMenu.usernameLabel.setText(mainMenu.controller.getLoggedUsername());
-        mainMenu.logoutButton.setVisible(true);
+        mainMenu.login();
+
+    }
+
+    private void login() {
+        LoginDialog loginDialog = LoginDialog.create(controller);
+        if (!controller.isLogged()) {
+            System.exit(0);
+            return;
+        }
+        usernameLabel.setText(controller.getLoggedUsername());
+        logoutButton.setVisible(true);
+    }
+
+    private void logout() {
+        controller.logout();
+        usernameLabel.setText("");
+        logoutButton.setVisible(false);
+        login();
     }
 
     private void aggiungiBachecaAllaLista(String nome, String titolo, Integer idBacheca) {

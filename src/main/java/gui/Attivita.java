@@ -9,6 +9,25 @@ public class Attivita {
     private JCheckBox stato;
     private JButton cancellaButton;
 
+    public Attivita() {
+        panel = new JPanel();
+        panel.setLayout(
+                new BorderLayout()
+        );
+        titolo = new JTextField();
+        panel.add(titolo, BorderLayout.CENTER);
+
+        JPanel container = new JPanel();
+        container.setLayout(new BorderLayout());
+        panel.add(container, BorderLayout.EAST);
+
+        cancellaButton = new JButton("🗑");
+        container.add(cancellaButton, BorderLayout.CENTER);
+
+        stato = new JCheckBox();
+        container.add(stato, BorderLayout.EAST);
+        stato.setAlignmentX(Component.RIGHT_ALIGNMENT);
+    }
 
     public JPanel getPanel() {
         return panel;

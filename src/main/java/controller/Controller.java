@@ -43,6 +43,10 @@ public class Controller {
         return true;
     }
 
+    public void logout() {
+        utente = null;
+    }
+
     public boolean isLogged() {
         return utente != null;
     }

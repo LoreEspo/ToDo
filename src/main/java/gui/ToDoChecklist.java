@@ -6,60 +6,29 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
-public class ToDoChecklist {
-    private JPanel panel;
-    private JButton cancellaButton;
-    private JTextField titolo;
-    private JPanel panelTitolo;
-    private JPanel containerAttivita;
-    private JButton aggiungiAttivitaButton;
-    private JButton condividiButton;
+public class ToDoChecklist extends ToDo {
 
-    private Controller controller;
-    private Integer indice = -1;
-    private ArrayList<Attivita> listaAttivita = new ArrayList<>();
+    private JPanel containerAttivita;
+    private final ArrayList<Attivita> listaAttivita = new ArrayList<>();
 
     public ToDoChecklist(Controller controller) {
-        this.controller = controller;
-
-        containerAttivita.setLayout(
-                new GridLayout(0, 1)
-        );
-
-        titolo.addActionListener(_ -> aggiorna());
-        aggiungiAttivitaButton.addActionListener(_ -> aggiungiAttivita());
-
-        panel.setMinimumSize(new Dimension(500, 500));
+        super(controller);
 
         aggiungiAttivita();
     }
 
+    protected void creaUI() {
+       super.creaUI();
 
-    public JPanel getPanel() {
-        return panel;
-    }
+       containerAttivita = new JPanel();
+       containerAttivita.setLayout(
+               new GridLayout(0, 1)
+       );
+       getPanel().add(containerAttivita, 2);
 
-    public void setTitolo(String titolo) {
-        this.titolo.setText(titolo);
-    }
-
-    public Integer getIndice() {
-        return indice;
-    }
-
-    public void setIndice(Integer indice) {
-        this.indice = indice;
-    }
-
-    public JButton getCancellaButton() {
-        return cancellaButton;
-    }
-
-    public void aggiorna() {
-        if (indice == -1) return;
-
-        controller.modificaToDo(indice, titolo.getText(), false);
-
+       JButton aggiungiButton = new JButton("Aggiungi attività");
+       aggiungiButton.addActionListener(_ -> {aggiungiAttivita();});
+       containerAttivita.add(aggiungiButton);
     }
 
     public void aggiungiAttivita() {

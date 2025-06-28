@@ -10,7 +10,9 @@
       <grid id="b4d1f" binding="topBar" layout-manager="BorderLayout" hgap="0" vgap="0">
         <constraints border-constraint="North"/>
         <properties/>
-        <border type="line"/>
+        <border type="line">
+          <color color="-2104859"/>
+        </border>
         <children>
           <component id="eeb78" class="javax.swing.JLabel" binding="usernameLabel">
             <constraints border-constraint="West"/>

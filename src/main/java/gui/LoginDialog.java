@@ -24,6 +24,8 @@ public class LoginDialog extends JDialog {
 		setModal(true);
 		getRootPane().setDefaultButton(buttonOK);
 
+		registerCheck.addActionListener(_ -> {setNomeFinestra();});
+
 		buttonOK.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -52,6 +54,14 @@ public class LoginDialog extends JDialog {
 				onCancel();
 			}
 		}, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+
+		setNomeFinestra();
+	}
+
+	private void setNomeFinestra() {
+		if (registerCheck.isSelected())
+			setTitle("Registrazione");
+		else setTitle("Accesso");
 	}
 
 	private void onOK() throws SQLException {

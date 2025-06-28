@@ -60,30 +60,32 @@ public class Bacheca {
     public void aggiungiToDo(boolean checklist) {
         Integer indice = controller.aggiungiToDo(checklist);
 
-        // JPanel wrapper = new JPanel();
+        JPanel wrapper = new JPanel();
+        wrapper.setLayout(new BorderLayout());
+        wrapper.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
         if (checklist) {
             ToDoChecklist guiToDo = new ToDoChecklist(controller);
             guiToDo.setIndice(indice);
 
             guiToDo.getCancellaButton().addActionListener(_ -> {
-                rimuoviToDo(guiToDo.getPanel(), indice);
+                rimuoviToDo(wrapper, indice);
             });
 
-            // wrapper.add(guiToDo.getPanel());
-            todoContainer.add(guiToDo.getPanel());
+            wrapper.add(guiToDo.getPanel(), BorderLayout.NORTH);
+            // todoContainer.add(guiToDo.getPanel());
         } else {
             ToDo guiToDo = new ToDo(controller);
             guiToDo.setIndice(indice);
 
             guiToDo.getCancellaButton().addActionListener(_ -> {
-                rimuoviToDo(guiToDo.getPanel(), indice);
+                rimuoviToDo(wrapper, indice);
             });
 
-            // wrapper.add(guiToDo.getPanel());
-            todoContainer.add(guiToDo.getPanel());
+            wrapper.add(guiToDo.getPanel());
+            // todoContainer.add(guiToDo.getPanel());
         }
-        // todoContainer.add(wrapper);
+        todoContainer.add(wrapper);
         todoContainer.repaint();
         todoContainer.revalidate();
     }
