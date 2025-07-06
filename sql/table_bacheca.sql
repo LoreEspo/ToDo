@@ -1,8 +1,8 @@
 CREATE TABLE BACHECA (
-    idbacheca INT PRIMARY KEY,
-    nome VARCHAR(50) DEFAULT 'Bacheca',
+    autore VARCHAR(16) NOT NULL,
     titolo NOME_BACHECA,
     descrizione VARCHAR(150) DEFAULT '',
-    autore VARCHAR(16) NOT NULL,
+    aperta BOOLEAN DEFAULT FALSE,
+    PRIMARY KEY (autore, titolo),
     FOREIGN KEY (autore) REFERENCES UTENTE(username)
 )

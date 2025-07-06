@@ -1,4 +1,4 @@
 CREATE TABLE UTENTE (
-    username NOME_UTENTE primary key,
-    password DOM_PASSWORD not null
+    username NOME_UTENTE PRIMARY KEY,
+    password DOM_PASSWORD NOT NULL
 );

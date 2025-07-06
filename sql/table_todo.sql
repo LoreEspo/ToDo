@@ -4,5 +4,5 @@ CREATE TABLE TODO (
 	scadenza DATE,
 	linkattivita BPCHAR,
 	descrizione VARCHAR(200) DEFAULT '',
-	immagine 
+	immagine BYTEA,
 );
