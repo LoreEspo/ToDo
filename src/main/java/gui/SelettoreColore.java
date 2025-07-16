@@ -1,17 +1,51 @@
 package gui;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.*;
 
 public class SelettoreColore extends JDialog {
-    private JPanel contentPane;
+    private JPanel panel;
     private JButton buttonOK;
     private JButton buttonCancel;
+    private JColorChooser colorChooser;
+    private boolean ok = false;
+
 
     public SelettoreColore() {
-        setContentPane(contentPane);
+        this(Color.BLACK);
+    }
+
+    public SelettoreColore(Color coloreIniziale) {
+        panel = new JPanel();
+        panel.setLayout(
+                new BorderLayout()
+        );
+        JPanel bottoni = new JPanel();
+        bottoni.setLayout(
+                new BorderLayout()
+        );
+
+        JPanel tmp_panel = new JPanel();
+        tmp_panel.setLayout(
+                new FlowLayout()
+        );
+
+        buttonOK = new JButton("OK");
+        buttonCancel = new JButton("Annulla");
+
+        tmp_panel.add(buttonOK);
+        tmp_panel.add(buttonCancel);
+        bottoni.add(tmp_panel, BorderLayout.EAST);
+
+        colorChooser = new JColorChooser(coloreIniziale);
+        panel.add(colorChooser, BorderLayout.CENTER);
+        panel.add(bottoni, BorderLayout.SOUTH);
+
+        setContentPane(panel);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
+
 
         buttonOK.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -34,7 +68,7 @@ public class SelettoreColore extends JDialog {
         });
 
         // call onCancel() on ESCAPE
-        contentPane.registerKeyboardAction(new ActionListener() {
+        panel.registerKeyboardAction(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 onCancel();
             }
@@ -42,19 +76,33 @@ public class SelettoreColore extends JDialog {
     }
 
     private void onOK() {
-        // add your code here
+        ok = true;
         dispose();
     }
 
     private void onCancel() {
-        // add your code here if necessary
         dispose();
     }
 
-    public static void main(String[] args) {
-        SelettoreColore dialog = new SelettoreColore();
-        dialog.pack();
-        dialog.setVisible(true);
-        System.exit(0);
+    public Color getColore() {
+        return colorChooser.getColor();
+    }
+
+    public boolean isOk() {
+        return ok;
+    }
+
+    static SelettoreColore create(Color coloreIniziale) {
+        SelettoreColore selettore = new SelettoreColore(coloreIniziale);
+        selettore.pack();
+        selettore.setVisible(true);
+        return selettore;
+    }
+
+    static SelettoreColore create() {
+        SelettoreColore selettore = new SelettoreColore();
+        selettore.pack();
+        selettore.setVisible(true);
+        return selettore;
     }
 }

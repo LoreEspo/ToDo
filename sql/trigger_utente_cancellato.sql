@@ -2,8 +2,6 @@ CREATE OR REPLACE FUNCTION fun_cancellaBachecheVecchioUtente() RETURNS TRIGGER A
 BEGIN
 	DELETE FROM BACHECA
 	WHERE autore = OLD.username;
-	DELETE FROM BACHECA_CONDIVISA
-	WHERE autore = OLD.username OR utente = OLD.username;
 	RETURN OLD;
 END $$ LANGUAGE PLPGSQL;
 

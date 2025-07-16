@@ -20,33 +20,28 @@
               <text value=""/>
             </properties>
           </component>
-          <component id="16de0" class="javax.swing.JButton" binding="creaBachecaButton">
+          <component id="77810" class="javax.swing.JButton" binding="logoutButton">
             <constraints border-constraint="East"/>
             <properties>
-              <text value="Nuova bacheca"/>
+              <text value="Logout"/>
             </properties>
           </component>
-          <grid id="e5f81" layout-manager="BorderLayout" hgap="0" vgap="0">
-            <constraints border-constraint="Center"/>
-            <properties/>
-            <border type="none"/>
-            <children>
-              <component id="77810" class="javax.swing.JButton" binding="logoutButton">
-                <constraints border-constraint="West"/>
-                <properties>
-                  <text value="Logout"/>
-                </properties>
-              </component>
-            </children>
-          </grid>
         </children>
       </grid>
-      <grid id="7c2b8" binding="listaBacheche" layout-manager="BorderLayout" hgap="0" vgap="0">
+      <scrollpane id="b0e11">
         <constraints border-constraint="Center"/>
         <properties/>
         <border type="none"/>
-        <children/>
-      </grid>
+        <children>
+          <grid id="7c2b8" binding="listaBacheche" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
+            <constraints/>
+            <properties/>
+            <border type="none"/>
+            <children/>
+          </grid>
+        </children>
+      </scrollpane>
     </children>
   </grid>
 </form>

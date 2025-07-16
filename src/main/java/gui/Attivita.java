@@ -4,10 +4,10 @@ import javax.swing.*;
 import java.awt.*;
 
 public class Attivita {
-    private JPanel panel;
-    private JTextField titolo;
-    private JCheckBox stato;
-    private JButton cancellaButton;
+    private final JPanel panel;
+    private final JTextField titolo;
+    private final JCheckBox stato;
+    private final JButton cancellaButton;
 
     public Attivita() {
         panel = new JPanel();
@@ -33,6 +33,8 @@ public class Attivita {
         return panel;
     }
 
+    public boolean getStato() { return stato.isSelected(); }
+
     public JButton getCancellaButton() {
         return cancellaButton;
     }
@@ -40,5 +42,12 @@ public class Attivita {
     public Attivita setTitolo(String titolo) {
         this.titolo.setText(titolo);
         return this;
+    }
+
+    public void setColore(Color colore) {
+        stato.setBackground(colore);
+        titolo.setBackground(
+                colore.brighter()
+        );
     }
 }

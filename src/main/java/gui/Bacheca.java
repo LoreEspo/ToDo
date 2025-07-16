@@ -4,28 +4,48 @@ import controller.Controller;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.sql.SQLException;
 
 
 public class Bacheca {
-    private JButton aggiungiButton;
-    private JButton condividiButton;
     private JPanel panel;
     private JPanel todoContainer;
-    private JPanel topBar;
-    private JScrollPane scrollPane;
-    private JLabel nome;
+    private JLabel labelNome;
     private JButton chiudiButton;
     private JButton todoButton;
-    private JButton checklistButton;
-    private Controller controller;
+    private JLabel labelAutore;
+    private final Controller controller;
     private final JFrame frame;
     private final JFrame mainFrame;
 
-
-    public Bacheca(Controller controller, JFrame frame, JFrame mainFrame) {
-        this.controller = controller;
+    public Bacheca(JFrame frame, JFrame mainFrame) {
+        this.controller = Controller.getInstance();
         this.frame = frame;
         this.mainFrame = mainFrame;
+
+        // Listener per assicurarsi di impostare la bacheca su "chiusa" nel database
+        // In caso di errore, la finestra non verrà chiusa.
+        this.frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+        this.frame.addWindowListener(
+                new WindowAdapter() {
+                    @Override
+                    public void windowClosing(WindowEvent e) {
+                        try {
+                            controller.chiudiBacheca();
+                        } catch (SQLException ex) {
+                            System.out.println(ex);
+                            JOptionPane.showMessageDialog(
+                                    panel, "Errore durante la chiusura. Riprova.",
+                                    "Error", JOptionPane.ERROR_MESSAGE
+                            );
+                            return;
+                        }
+                        e.getWindow().dispose();
+                    }
+                }
+        );
 
         // Set todoContainer layout
         todoContainer.setBorder(
@@ -35,15 +55,16 @@ public class Bacheca {
                 new GridLayout(0, 4, 50, 30)
         );
 
-        // Azioni
-        todoButton.addActionListener(_ -> {
-            aggiungiToDo(false);
-        });
-        checklistButton.addActionListener(_ -> {
-            aggiungiToDo(true);
-        });
+        this.labelNome.setText(controller.getTitoloBacheca());
+        this.labelNome.setFont(
+                this.labelNome.getFont().deriveFont(16.0f)
+        );
+        this.labelAutore.setText(controller.getAutoreBacheca());
 
-        chiudiButton.addActionListener(_ -> {chiudi();});
+        // Azioni
+        todoButton.addActionListener( _ -> aggiungiToDo() );
+
+        chiudiButton.addActionListener( _ -> chiudi() );
     }
 
     public JPanel getPanel() {
@@ -52,39 +73,37 @@ public class Bacheca {
 
 
     public void chiudi() {
-        controller.chiudiBacheca();
+        try {
+            controller.chiudiBacheca();
+        } catch (SQLException e) {
+            System.out.println(e);
+            JOptionPane.showMessageDialog(
+                    this.panel,
+                    "Errore nella chiusura della bacheca. Riprovare.",
+                    "Error", JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
         mainFrame.setVisible(true);
         frame.dispose();
     }
 
-    public void aggiungiToDo(boolean checklist) {
-        Integer indice = controller.aggiungiToDo(checklist);
+    public void aggiungiToDo() {
+        Integer indice = controller.aggiungiToDo();
 
         JPanel wrapper = new JPanel();
         wrapper.setLayout(new BorderLayout());
-        wrapper.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 
-        if (checklist) {
-            ToDoChecklist guiToDo = new ToDoChecklist(controller);
-            guiToDo.setIndice(indice);
+        ToDo guiTodo = new ToDo();
 
-            guiToDo.getCancellaButton().addActionListener(_ -> {
-                rimuoviToDo(wrapper, indice);
-            });
+        guiTodo.setIndice(indice);
 
-            wrapper.add(guiToDo.getPanel(), BorderLayout.NORTH);
-            // todoContainer.add(guiToDo.getPanel());
-        } else {
-            ToDo guiToDo = new ToDo(controller);
-            guiToDo.setIndice(indice);
+        guiTodo.getCancellaButton().addActionListener(_ ->
+            rimuoviToDo(wrapper, indice)
+        );
 
-            guiToDo.getCancellaButton().addActionListener(_ -> {
-                rimuoviToDo(wrapper, indice);
-            });
+        wrapper.add(guiTodo.getPanel(), BorderLayout.NORTH);
 
-            wrapper.add(guiToDo.getPanel());
-            // todoContainer.add(guiToDo.getPanel());
-        }
         todoContainer.add(wrapper);
         todoContainer.repaint();
         todoContainer.revalidate();

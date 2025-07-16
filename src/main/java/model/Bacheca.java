@@ -3,60 +3,66 @@ package model;
 import java.util.ArrayList;
 
 public class Bacheca {
-	public enum NomeBacheca {
-		UNIVERSITA,
-		LAVORO,
-		TEMPO_LIBERO,
+
+    public enum NomeBacheca {
+		UNIVERSITA("Università"),
+		LAVORO("Lavoro"),
+		TEMPO_LIBERO("Tempo libero");
+
+		public final String valore;
+
+		private NomeBacheca(String valore) { this.valore = valore; }
+
+		public static NomeBacheca daString(String stringa) {
+			for (NomeBacheca nome : values()) {
+				if (nome.valore.equals(stringa))
+					return nome;
+			}
+			return null;
+		}
 	}
 
 	private NomeBacheca titolo;
-	private String nome;
 	private String descrizione;
-	private ArrayList<PermessoBacheca> utenti = new ArrayList<PermessoBacheca>();
-	private ArrayList<ToDo> todo = new ArrayList<ToDo>();
-
-	private Integer id = -1;
+	private String autore;
+	private final ArrayList<ToDo> todo = new ArrayList<>();
 
 
-	public Bacheca(String nome_bacheca, NomeBacheca titolo_bacheca, String descrizione_bacheca) {
-		nome = nome_bacheca;
-		titolo = titolo_bacheca;
-		descrizione = descrizione_bacheca;
+	public Bacheca(NomeBacheca titoloBacheca, String descrizioneBacheca, String autoreBacheca) {
+		titolo = titoloBacheca;
+		descrizione = descrizioneBacheca;
+		autore = autoreBacheca;
 	}
 
-	public Integer getId() {
-		return id;
+	public NomeBacheca getTitolo() {
+		return titolo;
 	}
 
-	public void setId(Integer id) {
-		this.id = id;
+	public String getDescrizione() {
+		return descrizione;
 	}
 
-	public void setTitolo(NomeBacheca nuovo_titolo) {
-		titolo = nuovo_titolo;
+	public void setTitolo(NomeBacheca titolo) {
+		this.titolo = titolo;
 	}
 
-	public void setNome(String nome_bacheca) {
-		nome = nome_bacheca;
+	public void setDescrizione(String descrizione) {
+		this.descrizione = descrizione;
 	}
 
-	public String getNome() {
-		return nome;
+	public String getAutore() {
+		return autore;
 	}
 
-	public void setDescrizione(String nuova_descrizione) {
-		descrizione = nuova_descrizione;
+	public void setAutore(String autore) {
+		this.autore = autore;
 	}
 
-	public void aggiungiPermesso(PermessoBacheca permesso) {
-		utenti.add(permesso);
+	public void aggiungiToDo(ToDo nuovoTodo) {
+		todo.add(nuovoTodo);
 	}
 
-	public void aggiungiToDo(ToDo nuovo_todo) {
-		todo.add(nuovo_todo);
-	}
-
-	public void rimuoviToDo(ToDo vecchio_todo) {
-		todo.remove(vecchio_todo);
+	public void rimuoviToDo(ToDo vecchioTodo) {
+		todo.remove(vecchioTodo);
 	}
 }

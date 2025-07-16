@@ -1,25 +1,31 @@
 package controller;
 
+import dao.BachecaDAO;
 import dao.UtenteDAO;
-import db.ConnessioneDatabase;
 import model.*;
+import postgreDAO.BachecaPostgreDAO;
 import postgreDAO.UtentePostgreDAO;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
 
 
 public class Controller {
-    private PermessoBacheca permessoBacheca = null;
+    private static Controller instance = null;
+
     private Bacheca bachecaAperta = null;
     private Utente utente = null;
-    private final ArrayList<Integer> idBacheche = new ArrayList<>();
-    private Map<Integer, PermessoToDo> toDoMap = new HashMap<>();
+    private List<Bacheca> bacheche;
+    private final Map<Integer, PermessoToDo> toDoMap = new HashMap<>();
 
-
+    public static Controller getInstance() {
+        if (instance == null) {
+            instance = new Controller();
+        }
+        return instance;
+    }
 
     public boolean login(String username, String password) throws SQLException {
         UtenteDAO udao = new UtentePostgreDAO();
@@ -43,13 +49,9 @@ public class Controller {
         return true;
     }
 
-    public void logout() {
-        utente = null;
-    }
+    public void logout() { utente = null; }
 
-    public boolean isLogged() {
-        return utente != null;
-    }
+    public boolean isLogged() { return utente != null; }
 
     public String getLoggedUsername() {
         if (isLogged()) {
@@ -58,64 +60,77 @@ public class Controller {
         return "";
     }
 
-    public boolean isBachecaAperta() {
-        return bachecaAperta != null;
+    public boolean isBachecaChiusa() {
+        return bachecaAperta == null;
     }
-
-    private Bacheca.NomeBacheca titoloDaIndice(int indice) {
-		return switch (indice) {
-			case 0 -> Bacheca.NomeBacheca.UNIVERSITA;
-			case 1 -> Bacheca.NomeBacheca.LAVORO;
-			case 2 -> Bacheca.NomeBacheca.TEMPO_LIBERO;
-			default -> null;
-		};
-	}
 
     // Funzioni Bacheche
-    public void creaNuovaBacheca(String nome, int titolo) {
-        if (!isLogged()) return;
-        permessoBacheca = utente.creaBacheca(nome, titoloDaIndice(titolo), "");
-        bachecaAperta = permessoBacheca.getBacheca();
-        // Carica sul database
+    public void apriBacheca(int indice) throws SQLException {
+        BachecaDAO dao = new BachecaPostgreDAO();
+        dao.setStatoBacheca(getAutoreBacheca(indice), getTitoloBacheca(indice), true);
+        bachecaAperta = bacheche.get(indice);
     }
 
-    public void creaNuovaBacheca(String nome, int titolo, String descrizione) {
+    public void chiudiBacheca() throws SQLException {
         if (!isLogged()) return;
-        permessoBacheca = utente.creaBacheca(nome, titoloDaIndice(titolo), descrizione);
-        bachecaAperta = permessoBacheca.getBacheca();
-        // Carica sul database
-    }
-
-    public void chiudiBacheca() {
-        if (!isLogged()) return;
+        BachecaDAO dao = new BachecaPostgreDAO();
+        dao.setStatoBacheca(bachecaAperta.getAutore(), bachecaAperta.getTitolo().valore, false);
         bachecaAperta = null;
     }
 
-    public void setNomeBacheca(String nuovoNome) {
-        if (isBachecaAperta()) {
-            bachecaAperta.setNome(nuovoNome);
+    public int richiediBacheche() throws SQLException {
+        if (!isLogged()) return 0;
+
+        BachecaDAO bachecheDao = new BachecaPostgreDAO();
+
+        bacheche = bachecheDao.bachecheDisponibili(utente);
+
+        return bacheche.size();
+    }
+
+    public String getAutoreBacheca(int indice) {
+        Bacheca bacheca = bacheche.get(indice);
+        return bacheca.getAutore();
+    }
+
+    public String getAutoreBacheca() {
+        if (bachecaAperta == null) {
+            return "";
         }
+        return bachecaAperta.getAutore();
     }
 
-    public void setTitoloBacheca(int nuovoTitolo) {
-        if (isBachecaAperta()) {
-            bachecaAperta.setTitolo(titoloDaIndice(nuovoTitolo));
-            // Update database
+    public String getTitoloBacheca(int indice) {
+        Bacheca bacheca = bacheche.get(indice);
+        return bacheca.getTitolo().valore;
+    }
+
+    public String getTitoloBacheca() {
+        if (bachecaAperta == null) {
+            return null;
         }
+        return bachecaAperta.getTitolo().valore;
     }
 
-    public ArrayList<Integer> richiediBacheche() {
-        if (!isLogged()) return null;
-        return (ArrayList<Integer>) idBacheche.clone();
+    public String getDescrizioneBacheca(int indice) {
+        Bacheca bacheca = bacheche.get(indice);
+        return bacheca.getDescrizione();
     }
 
-    // Funzioni ToDo
-    public Integer aggiungiToDo(boolean checklist) {
-        if (!isBachecaAperta()) {
+    public String getDescrizioneBacheca() {
+        if (bachecaAperta == null) {
+            return "";
+        }
+        return bachecaAperta.getDescrizione();
+    }
+
+    // Funzioni promemoria
+    public Integer aggiungiToDo() {
+        if (isBachecaChiusa()) {
             return -1;
         }
 
-        PermessoToDo permesso = utente.creaToDo(checklist);
+        PermessoToDo permesso = utente.creaToDo();
         bachecaAperta.aggiungiToDo(permesso.getToDo());
 
         int indice = -1;
@@ -132,7 +147,7 @@ public class Controller {
     }
 
     public void rimuoviToDo(Integer indice) {
-        if (!isBachecaAperta()) {
+        if (isBachecaChiusa()) {
             return;
         }
 
@@ -143,7 +158,7 @@ public class Controller {
     }
 
     public void modificaToDo(Integer indice, String titolo, boolean completato) {
-        if (!isBachecaAperta()) {
+        if (isBachecaChiusa()) {
             return;
         }
 
@@ -155,23 +170,23 @@ public class Controller {
     }
 
     public void aggiungiAttivita(Integer indice) {
-        if (!isBachecaAperta()) {
+        if (isBachecaChiusa()) {
             return;
         }
 
         PermessoToDo permesso = toDoMap.get(indice);
-        ToDoChecklist todo = (ToDoChecklist) permesso.getToDo();
+        ToDo todo = permesso.getToDo();
 
         todo.aggiungiAttivita(new Attivita());
     }
 
     public void rimuoviAttivita(Integer indiceTodo, int indiceAttivita) {
-        if (!isBachecaAperta()) {
+        if (isBachecaChiusa()) {
             return;
         }
 
         PermessoToDo permesso = toDoMap.get(indiceTodo);
-        ToDoChecklist todo = (ToDoChecklist) permesso.getToDo();
+        ToDo todo = permesso.getToDo();
 
         todo.eliminaAttivita(indiceAttivita);
 

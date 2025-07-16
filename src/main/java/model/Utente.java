@@ -1,66 +1,68 @@
 package model;
 
+import java.util.List;
 import java.util.ArrayList;
 
 public class Utente {
-	private String username;
-	private String password;
+	private final String username;
+	private final String password;
 
-	private ArrayList<PermessoBacheca> bacheche = new ArrayList<PermessoBacheca>();
-	private ArrayList<PermessoToDo> todo = new ArrayList<PermessoToDo>();
+	private final List<Bacheca> bacheche = new ArrayList<>();
+	private final List<PermessoToDo> todo = new ArrayList<>();
 
-	public Utente(String username_utente, String password_utente) {
-		username = username_utente;
-		password = password_utente;
+
+	public Utente(String usernameUtente, String passwordUtente) {
+		username = usernameUtente;
+		password = passwordUtente;
 	}
 
 
-	public String getUsername() {
-		return username;
+	public Utente(String usernameUtente) {
+		this(usernameUtente, null);
 	}
 
-	public PermessoBacheca creaBacheca(String nome, Bacheca.NomeBacheca titolo, String descrizione) {
-		Bacheca bacheca = new Bacheca(nome, titolo, descrizione);
-		PermessoBacheca permesso = new PermessoBacheca(this, bacheca, true, true, true);
 
-		bacheche.add(permesso);
+	private boolean autorizzato() { return password != null; }
 
-		return permesso;
+	public List<Bacheca> getBacheche() { return bacheche; }
+
+	public List<PermessoToDo> getToDo() { return todo; }
+
+	public String getUsername() { return username; }
+
+	public Bacheca creaBacheca(Bacheca.NomeBacheca titolo, String descrizione) {
+		Bacheca bacheca = new Bacheca(titolo, descrizione, username);
+
+		bacheche.add(bacheca);
+
+		return bacheca;
 	}
 
-	public void modificaBacheca(PermessoBacheca permesso, Bacheca.NomeBacheca nuovo_titolo, String nuova_descrizione) {
-		if (!permesso.possessore(this) || !permesso.modifica) {
-			return;
-		}
-
-		permesso.getBacheca().setTitolo(nuovo_titolo);
-		permesso.getBacheca().setDescrizione(nuova_descrizione);
+	public void modificaBacheca(Bacheca bacheca, Bacheca.NomeBacheca nuovoTitolo, String nuovaDescrizione) {
+		bacheca.setTitolo(nuovoTitolo);
+		bacheca.setDescrizione(nuovaDescrizione);
 	}
 
-	public void eliminaBacheca(PermessoBacheca permesso) {
-		if (!permesso.possessore(this) || !permesso.eliminazione) {
-			return;
-		}
-
-		bacheche.remove(permesso);
+	public void eliminaBacheca(Bacheca bacheca) {
+		bacheche.remove(bacheca);
 	}
 
-	public PermessoToDo creaToDo(boolean checklist) {
-		ToDo nuovo_todo = checklist ? new ToDoChecklist() : new ToDo();
-		PermessoToDo permesso = new PermessoToDo(this, nuovo_todo, true, true);
-		nuovo_todo.aggiungiPermesso(permesso);
+	public PermessoToDo creaToDo() {
+		ToDo nuovoTodo = new ToDo();
+		PermessoToDo permesso = new PermessoToDo(this, nuovoTodo, true, true);
+		nuovoTodo.aggiungiPermesso(permesso);
 		this.todo.add(permesso);
 		return permesso;
 	}
 
-	public void modificaToDo(PermessoToDo permesso, String titolo, String data, String link_attivita) {
+	public void modificaToDo(PermessoToDo permesso, String titolo, String data, String linkAttivita) {
 		if (!permesso.possessore(this) || !permesso.modifica) {
 			return;
 		}
 
 		permesso.getToDo().setTitolo(titolo);
 		permesso.getToDo().setData(data);
-		permesso.getToDo().setLinkAttivita(link_attivita);
+		permesso.getToDo().setLinkAttivita(linkAttivita);
 	}
 
 	public void eliminaToDo(PermessoToDo permesso) {
@@ -71,20 +73,13 @@ public class Utente {
 		todo.remove(permesso);
 	}
 
-	public void spostaToDo(PermessoToDo permessoTodo, PermessoBacheca permessoDa, PermessoBacheca permessoA) {
+	public void spostaToDo(PermessoToDo permessoTodo, Bacheca bachecaDa, Bacheca bachecaA) {
+
 		if (!permessoTodo.possessore(this) || !permessoTodo.modifica) {
 			return;
 		}
 
-		if (!permessoDa.possessore(this) || !permessoDa.modifica) {
-			return;
-		}
-
-		if (!permessoA.possessore(this) || !permessoA.modifica) {
-			return;
-		}
-
-		permessoDa.getBacheca().rimuoviToDo(permessoTodo.getToDo());
-		permessoA.getBacheca().aggiungiToDo(permessoTodo.getToDo());
+		bachecaDa.rimuoviToDo(permessoTodo.getToDo());
+		bachecaA.aggiungiToDo(permessoTodo.getToDo());
 	}
 }

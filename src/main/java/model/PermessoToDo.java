@@ -21,4 +21,8 @@ public class PermessoToDo {
     public ToDo getToDo() {
         return todo;
     }
+
+    public boolean isModifica() { return modifica; }
+
+    public boolean isEliminazione() { return modifica; }
 }
