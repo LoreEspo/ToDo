@@ -9,17 +9,38 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
+import javax.swing.filechooser.FileFilter;
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Date;
 
 
 public class ToDo {
+    private static final Color LABEL_NORMAL = Color.BLACK;
+    private static final Color LABEL_HOVERED = Color.BLACK.brighter().brighter();
+    private static final Color LATE_NORMAL = Color.RED;
+    private static final Color LATE_HOVERED = Color.RED.brighter().brighter();
+    private static final Color URI_NORMAL = Color.BLUE;
+    private static final Color URI_HOVERED = Color.BLUE.brighter().brighter();
+
     protected JPanel panel;
     private JLabel titolo;
     private JTextArea descrizione;
     private JCheckBox stato;
+    private JPanel containerImmagine;
     private JLabel labelImmagine;
+    private JButton immagineButton;
+    private JPanel containerLink;
+    private JLabel link;
+    private JButton linkButton;
     private JPanel containerAttivita;
+    private JButton attivitaButton;
     private JButton dataButton;
     private JButton colorButton;
     private JButton cancellaButton;
@@ -27,13 +48,15 @@ public class ToDo {
 
     private final ArrayList<Attivita> listaAttivita = new ArrayList<>();
     private final Controller controller;
+    private Date scadenza;
     private Integer indice = -1;
 
-
-    public ToDo() {
+    public ToDo(JFrame frame) {
         this.controller = Controller.getInstance();
 
         creaUI();
+
+        impostaColore(panel.getBackground());
 
         titolo.addMouseListener(
                 new MouseListener() {
@@ -54,18 +77,139 @@ public class ToDo {
                     }
                     @Override
                     public void mouseEntered(MouseEvent e) {
-                        titolo.setForeground(Color.getColor("#333333"));
+                        setColoreTitolo(true);
                     }
 
                     @Override
                     public void mouseExited(MouseEvent e) {
-                        titolo.setForeground(Color.BLACK);
+                        setColoreTitolo(false);
                     }
                 }
         );
-        if (stato != null) {
-            stato.addActionListener(_ -> aggiorna());
-        }
+
+        labelImmagine.addMouseListener(
+                new MouseListener() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (e.getButton() == MouseEvent.BUTTON1) {
+                            cambiaImmagine();
+                        } else if (e.getButton() == MouseEvent.BUTTON3) {
+                            int opzione = JOptionPane.showConfirmDialog(
+                                    frame, "Rimuovere l'immagine?",
+                                    "Immagine", JOptionPane.OK_CANCEL_OPTION);
+                            if (opzione == 0) {
+                                rimuoviImmagine();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        // Non necessario
+                    }
+
+                    @Override
+                    public void mouseReleased(MouseEvent e) {
+                        // Non necessario
+                    }
+
+                    @Override
+                    public void mouseEntered(MouseEvent e) {
+                        // Non necessario
+                    }
+
+                    @Override
+                    public void mouseExited(MouseEvent e) {
+                        // Non necessario
+                    }
+                }
+        );
+
+        linkButton.addActionListener(_ -> {
+            String url = JOptionPane.showInputDialog(
+                    panel, "Imposta l'url dell'attività (Vuoto per rimuovere).",
+                    "Link attività", JOptionPane.QUESTION_MESSAGE
+            );
+            if (url != null) {
+                link.setText(url);
+            }
+        });
+
+        link.addMouseListener(
+                new MouseListener() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (link.getText().isEmpty()) {
+                            return;
+                        }
+                        Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+                        if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+                            try {
+                                desktop.browse(new URI(link.getText()));
+                            } catch (URISyntaxException _) {
+                                JOptionPane.showMessageDialog(
+                                        panel, "URI non valido.",
+                                        "URI error", JOptionPane.ERROR_MESSAGE
+                                );
+                            } catch (IOException _) {
+                                JOptionPane.showMessageDialog(
+                                        panel, "Non è stato possibile aprire l'URI.",
+                                        "Browser error", JOptionPane.ERROR_MESSAGE
+                                );
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        // Non necessario
+                    }
+
+                    @Override
+                    public void mouseReleased(MouseEvent e) {
+                        // Non necessario
+                    }
+
+                    @Override
+                    public void mouseEntered(MouseEvent e) {
+                        link.setForeground(URI_HOVERED);
+                    }
+
+                    @Override
+                    public void mouseExited(MouseEvent e) {
+                        link.setForeground(URI_NORMAL);
+                    }
+                }
+        );
+
+        dataButton.addActionListener(_ -> {
+            GregorianCalendar calendario = (GregorianCalendar) Calendar.getInstance();
+            Date current = calendario.getTime();
+
+            SelettoreData selettore = SelettoreData.create(current);
+            int result = selettore.getRisposta();
+
+            if (result == SelettoreData.RISPOSTA_CANCEL) {
+                return;
+            }
+            scadenza = selettore.getData();
+            setColoreTitolo();
+            if (scadenza == null) {
+                dataButton.setText("No scadenza");
+                return;
+            }
+            calendario.setTime(scadenza);
+            dataButton.setText(
+                String.format(
+                    "%d/%d/%d",
+                    calendario.get(Calendar.DAY_OF_MONTH),
+                    calendario.get(Calendar.MONTH) + 1,
+                    calendario.get(Calendar.YEAR)
+                )
+            );
+        });
+
+        stato.addActionListener(_ -> aggiorna());
         colorButton.addActionListener(_ -> cambiaColore());
 
     }
@@ -107,7 +251,36 @@ public class ToDo {
                 new Dimension(9999, tmpPanel.getPreferredSize().height)
         );
 
+        containerImmagine = new JPanel();
+        containerImmagine.setLayout(
+                new BorderLayout()
+        );
         labelImmagine = new JLabel();
+        labelImmagine.setVisible(false);
+        immagineButton = new JButton("Seleziona immagine");
+        immagineButton.addActionListener(_ -> cambiaImmagine());
+        containerImmagine.add(labelImmagine, BorderLayout.CENTER);
+        containerImmagine.add(immagineButton, BorderLayout.SOUTH);
+        containerImmagine.setMaximumSize(
+                new Dimension(9999, containerImmagine.getPreferredSize().height)
+        );
+        panel.add(containerImmagine);
+        immagineButton.setMaximumSize(
+                new Dimension(9999, immagineButton.getPreferredSize().height)
+        );
+
+        containerLink = new JPanel();
+        containerLink.setLayout(
+                new BorderLayout()
+        );
+        link = new JLabel();
+        link.setHorizontalAlignment(SwingConstants.CENTER);
+        link.setForeground(URI_NORMAL);
+        linkButton = new JButton("\uD83D\uDD89");
+        containerLink.add(link, BorderLayout.CENTER);
+        containerLink.add(linkButton, BorderLayout.EAST);
+        panel.add(containerLink);
+
 
         tmpPanel = new JPanel();
         tmpPanel.setLayout(new GridLayout(1, 2));
@@ -130,9 +303,9 @@ public class ToDo {
         );
         panel.add(containerAttivita);
 
-        JButton aggiungiButton = new JButton("Aggiungi attività");
-        aggiungiButton.addActionListener(_ -> aggiungiAttivita());
-        containerAttivita.add(aggiungiButton);
+        attivitaButton = new JButton("Aggiungi attività");
+        attivitaButton.addActionListener(_ -> aggiungiAttivita());
+        containerAttivita.add(attivitaButton);
 
         tmpPanel = new JPanel();
         tmpPanel.setLayout(new GridLayout(1, 2));
@@ -182,6 +355,65 @@ public class ToDo {
         controller.modificaToDo(indice, titolo.getText(), stato.isSelected());
     }
 
+    public boolean inRitardo() {
+        if (scadenza == null)
+            return false;
+        Date current = Calendar.getInstance().getTime();
+        return scadenza.compareTo(current) < 0;
+    }
+
+    public void cambiaImmagine() {
+        FileFilter filter = new FileFilter() {
+            @Override
+            public boolean accept(File f) {
+                if (f.isDirectory()) {
+                    return true;
+                }
+                String ext = getExtension(f.getName());
+                if (ext == null) {
+                    return false;
+                }
+                return ext.equals("png") || ext.equals("jpg") || ext.equals("jpeg");
+            }
+
+            @Override
+            public String getDescription() {
+                return "Immagini";
+            }
+
+            private String getExtension(String s) {
+                String ext = null;
+                int i = s.lastIndexOf('.');
+
+                if (i > 0 &&  i < s.length() - 1) {
+                    ext = s.substring(i+1).toLowerCase();
+                }
+                return ext;
+            }
+        };
+
+        JFileChooser fc = new JFileChooser();
+        fc.addChoosableFileFilter(filter);
+        int returnValue = fc.showOpenDialog(panel);
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            File file = fc.getSelectedFile();
+            byte[] bytes;
+
+            try {
+                bytes = Files.readAllBytes(file.toPath());
+            } catch (IOException e) {
+                System.out.println(e);
+                JOptionPane.showMessageDialog(
+                        panel, "Errore nell'apertura dell'immagine.",
+                        "Image error", JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+
+            setImmagine(bytes);
+        }
+    }
+
     public void setImmagine(byte[] dati) {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(dati);
         BufferedImage image;
@@ -191,14 +423,21 @@ public class ToDo {
             System.out.println(e);
             JOptionPane.showMessageDialog(
                     panel, "Errore nell'apertura dell'immagine.",
-                    "Error", JOptionPane.ERROR_MESSAGE
+                    "Image error", JOptionPane.ERROR_MESSAGE
             );
             return;
         }
         float scale = (float)panel.getWidth() / (float)image.getWidth();
         ImageIcon icona = new ImageIcon(image.getScaledInstance(panel.getWidth(), (int)(image.getHeight() * scale), Image.SCALE_FAST));
         labelImmagine.setIcon(icona);
+        labelImmagine.setVisible(true);
+        immagineButton.setVisible(false);
+    }
 
+    public void rimuoviImmagine() {
+        labelImmagine.setIcon(null);
+        labelImmagine.setVisible(false);
+        immagineButton.setVisible(true);
     }
 
     public void aggiungiAttivita() {
@@ -230,12 +469,35 @@ public class ToDo {
         if (!selettore.isOk()) {
             return;
         }
+        impostaColore(selettore.getColore());
+    }
 
-        System.out.println(selettore.getColore().toString());
+    private void setColoreTitolo(boolean hovered) {
+        if (hovered) {
+            titolo.setForeground(inRitardo() ? LATE_HOVERED : LABEL_HOVERED);
+        } else {
+            titolo.setForeground(inRitardo() ? LATE_NORMAL : LABEL_NORMAL);
+        }
+    }
 
-        panel.setBackground(selettore.getColore());
-        descrizione.setBackground(selettore.getColore());
-        stato.setBackground(descrizione.getBackground());
+    private void setColoreTitolo() {
+        setColoreTitolo(false);
+    }
+
+    private void impostaColore(Color colore) {
+        JComponent[] componentiColorati = {
+                panel, descrizione, stato, containerImmagine,
+                immagineButton, containerLink, link, linkButton,
+                containerAttivita, attivitaButton, dataButton,
+                colorButton, cancellaButton, condividiButton
+        };
+
+        labelImmagine.setBackground(new Color(0, 0, 0, 0));
+
+        for (JComponent component : componentiColorati) {
+            component.setBackground(colore);
+        }
+
         for (Attivita attivita : listaAttivita) {
             attivita.setColore(panel.getBackground());
         }

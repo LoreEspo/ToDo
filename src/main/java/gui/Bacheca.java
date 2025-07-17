@@ -52,7 +52,7 @@ public class Bacheca {
                 BorderFactory.createEmptyBorder(20, 20, 20, 20)
         );
         todoContainer.setLayout(
-                new GridLayout(0, 4, 50, 30)
+            new GridLayout(0, 4, 50, 30)
         );
 
         this.labelNome.setText(controller.getTitoloBacheca());
@@ -94,7 +94,7 @@ public class Bacheca {
         JPanel wrapper = new JPanel();
         wrapper.setLayout(new BorderLayout());
 
-        ToDo guiTodo = new ToDo();
+        ToDo guiTodo = new ToDo(frame);
 
         guiTodo.setIndice(indice);
 
