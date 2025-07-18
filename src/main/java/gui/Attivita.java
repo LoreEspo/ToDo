@@ -1,6 +1,7 @@
 package gui;
 
 import javax.swing.*;
+import javax.swing.border.BevelBorder;
 import java.awt.*;
 
 public class Attivita {
@@ -16,6 +17,9 @@ public class Attivita {
         );
         titolo = new JTextField();
         panel.add(titolo, BorderLayout.CENTER);
+        titolo.setBorder(
+                BorderFactory.createBevelBorder(BevelBorder.LOWERED)
+        );
 
         JPanel container = new JPanel();
         container.setLayout(new BorderLayout());
@@ -46,8 +50,6 @@ public class Attivita {
 
     public void setColore(Color colore) {
         stato.setBackground(colore);
-        titolo.setBackground(
-                colore.brighter()
-        );
+        titolo.setBackground(colore);
     }
 }

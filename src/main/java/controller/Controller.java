@@ -1,15 +1,15 @@
 package controller;
 
 import dao.BachecaDAO;
+import dao.ToDoDAO;
 import dao.UtenteDAO;
 import model.*;
 import postgreDAO.BachecaPostgreDAO;
+import postgreDAO.ToDoPostgreDAO;
 import postgreDAO.UtentePostgreDAO;
 
 import java.sql.SQLException;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 
 public class Controller {
@@ -17,8 +17,7 @@ public class Controller {
 
     private Bacheca bachecaAperta = null;
     private Utente utente = null;
-    private List<Bacheca> bacheche;
-    private final Map<Integer, PermessoToDo> toDoMap = new HashMap<>();
+    private final List<Integer> todoModificati = new ArrayList<>();
 
     public static Controller getInstance() {
         if (instance == null) {
@@ -64,11 +63,18 @@ public class Controller {
         return bachecaAperta == null;
     }
 
-    // Funzioni Bacheche
+    public boolean modificheEffettuate() {
+        return !todoModificati.isEmpty();
+    }
+
+    // Funzioni bacheche
+
     public void apriBacheca(int indice) throws SQLException {
-        BachecaDAO dao = new BachecaPostgreDAO();
-        dao.setStatoBacheca(getAutoreBacheca(indice), getTitoloBacheca(indice), true);
-        bachecaAperta = bacheche.get(indice);
+        BachecaDAO bachecaDao = new BachecaPostgreDAO();
+        bachecaDao.setStatoBacheca(getAutoreBacheca(indice), getTitoloBacheca(indice), true);
+        bachecaAperta = utente.getBacheche().get(indice);
+        ToDoDAO todoDao = new ToDoPostgreDAO();
+        utente.setTodoMap(todoDao.todoBacheca(utente, bachecaAperta));
     }
 
     public void chiudiBacheca() throws SQLException {
@@ -76,6 +82,7 @@ public class Controller {
         BachecaDAO dao = new BachecaPostgreDAO();
         dao.setStatoBacheca(bachecaAperta.getAutore(), bachecaAperta.getTitolo().valore, false);
         bachecaAperta = null;
+        utente.getTodoMap().clear();
     }
 
     public int richiediBacheche() throws SQLException {
@@ -83,90 +90,146 @@ public class Controller {
 
         BachecaDAO bachecheDao = new BachecaPostgreDAO();
 
-        bacheche = bachecheDao.bachecheDisponibili(utente);
+        utente.setBacheche(bachecheDao.bachecheDisponibili(utente));
 
-        return bacheche.size();
+        return utente.getBacheche().size();
     }
 
     public String getAutoreBacheca(int indice) {
-        Bacheca bacheca = bacheche.get(indice);
+        Bacheca bacheca = utente.getBacheche().get(indice);
         return bacheca.getAutore();
     }
 
     public String getAutoreBacheca() {
-        if (bachecaAperta == null) {
+        if (isBachecaChiusa()) {
             return "";
         }
         return bachecaAperta.getAutore();
     }
 
     public String getTitoloBacheca(int indice) {
-        Bacheca bacheca = bacheche.get(indice);
+        Bacheca bacheca = utente.getBacheche().get(indice);
         return bacheca.getTitolo().valore;
     }
 
     public String getTitoloBacheca() {
-        if (bachecaAperta == null) {
+        if (isBachecaChiusa()) {
             return null;
         }
         return bachecaAperta.getTitolo().valore;
     }
 
     public String getDescrizioneBacheca(int indice) {
-        Bacheca bacheca = bacheche.get(indice);
+        Bacheca bacheca = utente.getBacheche().get(indice);
         return bacheca.getDescrizione();
     }
 
-    public String getDescrizioneBacheca() {
-        if (bachecaAperta == null) {
-            return "";
+    // Funzioni promemoria
+
+    private void setToDoModificato(Integer indice) {
+        if (todoModificati.contains(indice)) {
+            return;
         }
-        return bachecaAperta.getDescrizione();
+        todoModificati.add(indice);
     }
 
-    // Funzioni promemoria
-    public Integer aggiungiToDo() {
+    public void salvaToDo() throws SQLException {
+        ToDoDAO dao = new ToDoPostgreDAO();
+        for (int indice: todoModificati) {
+            dao.aggiornaTodo(indice, utente.getToDo(indice));
+        }
+        todoModificati.clear();
+    }
+
+    public Integer aggiungiToDo() throws SQLException {
         if (isBachecaChiusa()) {
             return -1;
         }
+        ToDoDAO dao = new ToDoPostgreDAO();
 
-        PermessoToDo permesso = utente.creaToDo();
-        bachecaAperta.aggiungiToDo(permesso.getToDo());
-
-        int indice = -1;
-
-        for (Integer i : toDoMap.keySet()) {
-            indice = Integer.max(indice, i);
-        }
-        indice++;
-        toDoMap.put(indice, permesso);
-
-        // Update database
+        ToDo todo = new ToDo(utente, bachecaAperta);
+        Integer indice = dao.aggiungi(todo);
+        utente.getTodoMap().put(indice, todo);
 
         return indice;
     }
 
-    public void rimuoviToDo(Integer indice) {
+    public void rimuoviToDo(Integer indice) throws SQLException {
         if (isBachecaChiusa()) {
             return;
         }
+        todoModificati.remove(indice);
 
-        PermessoToDo permesso = toDoMap.get(indice);
-        utente.eliminaToDo(permesso);
-        bachecaAperta.rimuoviToDo(permesso.getToDo());
-        // Update database
+        ToDoDAO dao = new ToDoPostgreDAO();
+
+        dao.rimuovi(indice);
+
+        utente.eliminaToDo(indice);
     }
 
-    public void modificaToDo(Integer indice, String titolo, boolean completato) {
-        if (isBachecaChiusa()) {
-            return;
-        }
+    public Set<Integer> listaToDo() { return utente.getTodoMap().keySet(); }
 
-        PermessoToDo permesso = toDoMap.get(indice);
-        ToDo todo = permesso.getToDo();
+    public String getTitoloToDo(Integer indice) {
+        return utente.getToDo(indice).getTitolo();
+    }
 
-        todo.setTitolo(titolo);
-        todo.setCompletato(completato);
+    public void setTitoloToDo(Integer indice, String titolo) {
+        utente.getToDo(indice).setTitolo(titolo);
+        setToDoModificato(indice);
+    }
+
+    public String getDescrizioneToDo(Integer indice) {
+        return utente.getToDo(indice).getDescrizione();
+    }
+
+    public void setDescrizioneToDo(Integer indice, String descrizione) {
+        utente.getToDo(indice).setDescrizione(descrizione);
+        setToDoModificato(indice);
+    }
+
+    public boolean getCompletatoToDo(Integer indice) {
+        return utente.getToDo(indice).getCompletato();
+    }
+
+    public void setCompletatoToDo(Integer indice, boolean stato) {
+        utente.getToDo(indice).setCompletato(stato);
+        setToDoModificato(indice);
+    }
+
+    public byte[] getImmagineToDo(Integer indice) {
+        return utente.getToDo(indice).getImmagine();
+    }
+
+    public void setImmagineToDo(Integer indice, byte[] immagine) {
+        utente.getToDo(indice).setImmagine(immagine);
+        setToDoModificato(indice);
+    }
+
+    public String getLinkToDo(Integer indice) {
+        return utente.getToDo(indice).getLinkAttivita();
+    }
+
+    public void setLinkToDo(Integer indice, String linkAttivita) {
+        utente.getToDo(indice).setLinkAttivita(linkAttivita);
+        setToDoModificato(indice);
+    }
+
+    public String getColoreToDo(Integer indice) {
+        return utente.getToDo(indice).getColoreSfondo();
+    }
+
+    public void setColoreToDo(Integer indice, String colore) {
+        utente.getToDo(indice).setColoreSfondo(colore);
+        setToDoModificato(indice);
+    }
+
+    public Date getScadenzaToDo(Integer indice) {
+        return utente.getToDo(indice).getScadenza();
+    }
+
+    public void setScadenzaToDo(Integer indice, Date scadenza) {
+        utente.getToDo(indice).setScadenza(scadenza);
+        setToDoModificato(indice);
     }
 
     public void aggiungiAttivita(Integer indice) {
@@ -174,8 +237,7 @@ public class Controller {
             return;
         }
 
-        PermessoToDo permesso = toDoMap.get(indice);
-        ToDo todo = permesso.getToDo();
+        ToDo todo = utente.getTodoMap().get(indice);
 
         todo.aggiungiAttivita(new Attivita());
     }
@@ -185,12 +247,10 @@ public class Controller {
             return;
         }
 
-        PermessoToDo permesso = toDoMap.get(indiceTodo);
-        ToDo todo = permesso.getToDo();
+        ToDo todo = utente.getTodoMap().get(indiceTodo);
 
         todo.eliminaAttivita(indiceAttivita);
 
     }
-
 
 }

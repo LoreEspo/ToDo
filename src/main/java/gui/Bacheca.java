@@ -16,6 +16,7 @@ public class Bacheca {
     private JButton chiudiButton;
     private JButton todoButton;
     private JLabel labelAutore;
+    private JButton salvaButton;
     private final Controller controller;
     private final JFrame frame;
     private final JFrame mainFrame;
@@ -63,16 +64,47 @@ public class Bacheca {
 
         // Azioni
         todoButton.addActionListener( _ -> aggiungiToDo() );
-
+        salvaButton.addActionListener(_ -> salva());
         chiudiButton.addActionListener( _ -> chiudi() );
+
+        for (int indice : controller.listaToDo()) {
+            aggiungiToDo(indice);
+        }
     }
 
     public JPanel getPanel() {
         return panel;
     }
 
+    private boolean salva() {
+        try {
+            controller.salvaToDo();
+            JOptionPane.showMessageDialog(
+                    panel, "Promemoria salvati.",
+                    "Save complete", JOptionPane.PLAIN_MESSAGE
+            );
+            return true;
+        } catch (SQLException e) {
+            System.out.println(e);
+            JOptionPane.showMessageDialog(
+                    panel, "Errore durante il salvataggio dei promemoria.",
+                    "Save error", JOptionPane.ERROR_MESSAGE
+            );
+            return false;
+        }
+    }
 
-    public void chiudi() {
+    private void chiudi() {
+        if (controller.modificheEffettuate()) {
+            int result = JOptionPane.showConfirmDialog(
+                    panel, "Ci sono modifiche non salvate. Salvare?",
+                    "Save", JOptionPane.YES_NO_CANCEL_OPTION
+            );
+            if ((result == JOptionPane.CANCEL_OPTION) || (result == JOptionPane.YES_OPTION && !salva())) {
+                return;
+            }
+        }
+
         try {
             controller.chiudiBacheca();
         } catch (SQLException e) {
@@ -89,12 +121,25 @@ public class Bacheca {
     }
 
     public void aggiungiToDo() {
-        Integer indice = controller.aggiungiToDo();
+        Integer indice;
+        try {
+            indice = controller.aggiungiToDo();
+        } catch (SQLException e) {
+            System.out.println(e);
+            JOptionPane.showMessageDialog(
+                    panel, "Errore nella creazione del promemoria.",
+                    "ToDo error", JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+        aggiungiToDo(indice);
+    }
 
+    private void aggiungiToDo(Integer indice) {
         JPanel wrapper = new JPanel();
         wrapper.setLayout(new BorderLayout());
 
-        ToDo guiTodo = new ToDo(frame);
+        ToDo guiTodo = new ToDo(frame, indice);
 
         guiTodo.setIndice(indice);
 
@@ -107,10 +152,28 @@ public class Bacheca {
         todoContainer.add(wrapper);
         todoContainer.repaint();
         todoContainer.revalidate();
+
     }
 
     public void rimuoviToDo(JPanel wrapper, Integer indice) {
-        controller.rimuoviToDo(indice);
+        int result = JOptionPane.showConfirmDialog(
+                panel, "Cancellare il promemoria?",
+                "Delete todo", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE
+        );
+        if (result == JOptionPane.CANCEL_OPTION) {
+            return;
+        }
+
+        try {
+            controller.rimuoviToDo(indice);
+        } catch (SQLException e) {
+            System.out.println(e);
+            JOptionPane.showMessageDialog(
+                    panel, "Errore nella rimozione del promemoria.",
+                    "ToDo error", JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
 
         todoContainer.remove(wrapper);
         todoContainer.repaint();

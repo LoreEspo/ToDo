@@ -5,6 +5,7 @@ import db.ConnessioneDatabase;
 import model.Bacheca;
 import model.Utente;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -18,7 +19,7 @@ public class BachecaPostgreDAO implements BachecaDAO {
 
         ConnessioneDatabase conn = ConnessioneDatabase.getInstance();
 
-        String query = "SELECT * FROM BACHECA WHERE autore = '" + utente.getUsername() + "'";
+        String query = "SELECT * FROM BACHECA WHERE autore = '" + utente.getUsername() + "' ORDER BY titolo";
 
         ResultSet rs = conn.prepareStatement(query).executeQuery();
 
@@ -42,5 +43,18 @@ public class BachecaPostgreDAO implements BachecaDAO {
                 "' AND titolo = '" + titolo + "'";
 
         conn.prepareStatement(query).execute();
+    }
+
+    @Override
+    public void setDescrizione(String autore, String titolo, String descrizione) throws SQLException {
+        ConnessioneDatabase conn = ConnessioneDatabase.getInstance();
+
+        String query = "UPDATE BACHECA SET aperta = ? WHERE autore = '" + autore +
+                "' AND titolo = '" + titolo + "'";
+
+        PreparedStatement statement = conn.prepareStatement(query);
+        statement.setString(1, descrizione);
+
+        statement.execute();
     }
 }

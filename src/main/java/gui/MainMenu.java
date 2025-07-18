@@ -130,7 +130,7 @@ public class MainMenu {
             listaBacheche.remove(component);
         }
 
-        int numeroBacheche = 0;
+        int numeroBacheche;
 
         try {
             numeroBacheche = controller.richiediBacheche();

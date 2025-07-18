@@ -1,18 +1,25 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class ToDo {
-    private String titolo;
-    private String data;
+    private String titolo = "Titolo";
+    private Date scadenza;
     private String linkAttivita;
+    private String descrizione;
     private byte[] immagine;
     private String coloreSfondo;
     private boolean completato = false;
     private final List<Attivita> listaAttivita = new ArrayList<>();
-    private PermessoToDo utente;
+    private Utente utente;
+    private Bacheca bacheca;
 
+    public ToDo(Utente utente, Bacheca bacheca) {
+        this.utente = utente;
+        this.bacheca = bacheca;
+    }
 
     public String getColoreSfondo() {
         return coloreSfondo;
@@ -36,10 +43,6 @@ public class ToDo {
 
     public void setCompletato(boolean completato) { this.completato = completato; }
 
-    public void aggiungiPermesso(PermessoToDo permesso) {
-        utente = permesso;
-    }
-
     public String getTitolo() {
         return titolo;
     }
@@ -48,12 +51,10 @@ public class ToDo {
         titolo = nuovoTitolo;
     }
 
-    public String getData() {
-        return data;
-    }
+    public Date getScadenza() { return scadenza; }
 
-    public void setData(String nuovoData) {
-        data = nuovoData;
+    public void setScadenza(Date nuovaScadenza) {
+        scadenza = nuovaScadenza;
     }
 
     public String getLinkAttivita() {
@@ -70,6 +71,7 @@ public class ToDo {
 
     public void setImmagine(byte[] nuovaImmagine) {
         immagine = nuovaImmagine;
+        System.out.println(immagine);
     }
 
     public void aggiungiAttivita(Attivita attivita) {
@@ -84,4 +86,23 @@ public class ToDo {
         listaAttivita.remove(indiceAttivita);
     }
 
+    public Utente getUtente() {
+        return utente;
+    }
+
+    public String getDescrizione() {
+        return descrizione;
+    }
+
+    public void setDescrizione(String descrizione) {
+        this.descrizione = descrizione;
+    }
+
+    public Bacheca getBacheca() {
+        return bacheca;
+    }
+
+    public void setBacheca(Bacheca bacheca) {
+        this.bacheca = bacheca;
+    }
 }

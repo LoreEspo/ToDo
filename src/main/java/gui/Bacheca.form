@@ -45,6 +45,12 @@
               <text value="Aggiungi &#10;promemoria"/>
             </properties>
           </component>
+          <component id="ac2b2" class="javax.swing.JButton" binding="salvaButton">
+            <constraints/>
+            <properties>
+              <text value="Salva"/>
+            </properties>
+          </component>
           <component id="4f54" class="javax.swing.JButton" binding="chiudiButton">
             <constraints/>
             <properties>

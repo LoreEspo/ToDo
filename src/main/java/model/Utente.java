@@ -1,14 +1,13 @@
 package model;
 
-import java.util.List;
-import java.util.ArrayList;
+import java.util.*;
 
 public class Utente {
 	private final String username;
 	private final String password;
 
-	private final List<Bacheca> bacheche = new ArrayList<>();
-	private final List<PermessoToDo> todo = new ArrayList<>();
+	private List<Bacheca> bacheche = new ArrayList<>();
+	private Map<Integer, ToDo> todoMap = new HashMap<>();
 
 
 	public Utente(String usernameUtente, String passwordUtente) {
@@ -21,65 +20,30 @@ public class Utente {
 		this(usernameUtente, null);
 	}
 
-
-	private boolean autorizzato() { return password != null; }
-
 	public List<Bacheca> getBacheche() { return bacheche; }
 
-	public List<PermessoToDo> getToDo() { return todo; }
+	public void setBacheche(List<Bacheca> bacheche) { this.bacheche = bacheche; }
+
+	public Map<Integer, ToDo> getTodoMap() { return todoMap; }
+
+	public void setTodoMap(Map<Integer, ToDo> todoMap) { this.todoMap = todoMap; }
 
 	public String getUsername() { return username; }
 
-	public Bacheca creaBacheca(Bacheca.NomeBacheca titolo, String descrizione) {
-		Bacheca bacheca = new Bacheca(titolo, descrizione, username);
-
-		bacheche.add(bacheca);
-
-		return bacheca;
+	public ToDo getToDo(int indice) {
+		return todoMap.get(indice);
 	}
 
-	public void modificaBacheca(Bacheca bacheca, Bacheca.NomeBacheca nuovoTitolo, String nuovaDescrizione) {
-		bacheca.setTitolo(nuovoTitolo);
-		bacheca.setDescrizione(nuovaDescrizione);
+	public ToDo creaToDo(int indiceBacheca) {
+		return new ToDo(this, bacheche.get(indiceBacheca));
 	}
 
-	public void eliminaBacheca(Bacheca bacheca) {
-		bacheche.remove(bacheca);
+	public void eliminaToDo(Integer indice) {
+		this.todoMap.remove(indice);
 	}
 
-	public PermessoToDo creaToDo() {
-		ToDo nuovoTodo = new ToDo();
-		PermessoToDo permesso = new PermessoToDo(this, nuovoTodo, true, true);
-		nuovoTodo.aggiungiPermesso(permesso);
-		this.todo.add(permesso);
-		return permesso;
-	}
-
-	public void modificaToDo(PermessoToDo permesso, String titolo, String data, String linkAttivita) {
-		if (!permesso.possessore(this) || !permesso.modifica) {
-			return;
-		}
-
-		permesso.getToDo().setTitolo(titolo);
-		permesso.getToDo().setData(data);
-		permesso.getToDo().setLinkAttivita(linkAttivita);
-	}
-
-	public void eliminaToDo(PermessoToDo permesso) {
-		if (!permesso.possessore(this) || !permesso.eliminazione) {
-			return;
-		}
-
-		todo.remove(permesso);
-	}
-
-	public void spostaToDo(PermessoToDo permessoTodo, Bacheca bachecaDa, Bacheca bachecaA) {
-
-		if (!permessoTodo.possessore(this) || !permessoTodo.modifica) {
-			return;
-		}
-
-		bachecaDa.rimuoviToDo(permessoTodo.getToDo());
-		bachecaA.aggiungiToDo(permessoTodo.getToDo());
+	public void spostaToDo(ToDo todo, Integer bachecaDa, Integer bachecaA) {
+		bacheche.get(bachecaDa).rimuoviToDo(todo);
+		bacheche.get(bachecaA).aggiungiToDo(todo);
 	}
 }

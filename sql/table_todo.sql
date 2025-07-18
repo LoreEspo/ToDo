@@ -1,8 +1,13 @@
 CREATE TABLE TODO (
 	idtodo INT PRIMARY KEY,
-	titolo VARCHAR(30) DEFAULT '',
+	titolo TEXT DEFAULT 'Titolo',
 	scadenza DATE,
-	linkattivita BPCHAR,
-	descrizione VARCHAR(200) DEFAULT '',
+	linkattivita TEXT,
+	descrizione TEXT DEFAULT '',
 	immagine BYTEA,
+    coloreSfondo TEXT,
+    completato BOOLEAN,
+    autore NOME_UTENTE NOT NULL,
+    titoloBacheca NOME_BACHECA NOT NULL,
+    FOREIGN KEY (autore, titoloBacheca) REFERENCES BACHECA(autore, titolo)
 );
