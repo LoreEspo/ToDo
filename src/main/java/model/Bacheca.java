@@ -1,10 +1,13 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class Bacheca {
+public class Bacheca implements Mappabile {
 
-    public enum NomeBacheca {
+	public enum NomeBacheca {
 		UNIVERSITA("Università"),
 		LAVORO("Lavoro"),
 		TEMPO_LIBERO("Tempo libero");
@@ -64,5 +67,35 @@ public class Bacheca {
 
 	public void rimuoviToDo(ToDo vecchioTodo) {
 		todo.remove(vecchioTodo);
+	}
+
+	@Override
+	public Map<String, Object> aMap() {
+		Map<String, Object> map = new HashMap<>();
+		map.put("titolo", titolo.valore);
+		map.put("descrizione", descrizione);
+		map.put("autore", autore);
+		map.put("todo", new ArrayList<Map<String, Object>>());
+
+		for (ToDo singoloTodo : todo) {
+			List<Map<String, Object>> lista = (List<Map<String, Object>>) map.get("todo");
+			lista.add(singoloTodo.aMap());
+		}
+		return map;
+	}
+
+	public static Bacheca daMap(Map<String, Object> map) {
+		Bacheca bacheca = new Bacheca(
+				NomeBacheca.daString((String) map.get("titolo")),
+				(String) map.get("descrizione"),
+				(String) map.get("autore")
+		);
+		List<Map<String, Object>> lista = (List<Map<String, Object>>) map.get("todo");
+		if (lista != null) {
+			for (Map<String, Object> mappaTodo : lista) {
+				bacheca.todo.add(ToDo.daMap(mappaTodo));
+			}
+		}
+		return bacheca;
 	}
 }

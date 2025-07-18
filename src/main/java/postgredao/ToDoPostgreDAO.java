@@ -1,0 +1,135 @@
+package postgredao;
+
+import dao.ToDoDAO;
+import db.ConnessioneDatabase;
+import logger.ToDoLogger;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+public class ToDoPostgreDAO implements ToDoDAO {
+
+    @Override
+    public Integer aggiungi(Map<String, Object> todo) throws SQLException {
+        ConnessioneDatabase conn = ConnessioneDatabase.getInstance();
+
+        String query = "SELECT MAX(idTodo) FROM TODO";
+        ToDoLogger.getInstance().logQuery(query);
+        ResultSet rs = conn.prepareStatement(query).executeQuery();
+
+        int id;
+
+        if (rs.next()) {
+            id = rs.getInt(1) + 1;
+        } else {
+            id = 0;
+        }
+
+        query = "INSERT INTO TODO VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, '" + todo.get(TITOLO_BACHECA) + "')";
+        // Titolo della bacheca aggiunto separatamente poiché PreparedStatement.setString() ignora il dominio
+        // della colonna e la considera VARCHAR
+        PreparedStatement statement = conn.prepareStatement(query);
+        statement.setInt(1, id);
+        statement.setString(2, (String) todo.get(TITOLO));
+        Date scadenza = (Date) todo.get(SCADENZA);
+        if (scadenza != null) {
+            statement.setDate(3, new java.sql.Date((scadenza).getTime()));
+        } else {
+            statement.setDate(3, null);
+        }
+        statement.setString(4, (String) todo.get(LINK_ATTIVITA));
+        statement.setString(5, (String) todo.get(DESCRIZIONE));
+        statement.setBytes(6, (byte[]) todo.get(IMMAGINE));
+        statement.setString(7, (String) todo.get(COLORE_SFONDO));
+        statement.setBoolean(8, (boolean) todo.get(COMPLETATO));
+        statement.setString(9, (String) todo.get(AUTORE));
+        ToDoLogger.getInstance().logQuery(statement.toString());
+        statement.execute();
+
+        return id;
+    }
+
+    @Override
+    public void rimuovi(Integer id) throws SQLException {
+        ConnessioneDatabase conn = ConnessioneDatabase.getInstance();
+        conn.prepareStatement("DELETE FROM TODO WHERE idTodo = " + id).execute();
+    }
+
+    @Override
+    public Map<Integer, Map<String, Object>> todoBacheca(String autore, String titoloBacheca) throws SQLException {
+        ConnessioneDatabase conn = ConnessioneDatabase.getInstance();
+        Map<Integer, Map<String, Object>> out = new HashMap<>();
+
+        String query = String.format("SELECT * FROM TODO WHERE autore = '%s' AND titoloBacheca = '%s'", autore, titoloBacheca);
+        ToDoLogger.getInstance().logQuery(query);
+        ResultSet rs = conn.prepareStatement(query).executeQuery();
+
+        while (rs.next()) {
+            Map<String, Object> todo = new HashMap<>();
+            todo.put(
+                    TITOLO, rs.getString(TITOLO));
+            todo.put(
+                    SCADENZA, rs.getDate(SCADENZA));
+            todo.put(
+                    LINK_ATTIVITA, rs.getString(LINK_ATTIVITA));
+            todo.put(
+                    DESCRIZIONE, rs.getString(DESCRIZIONE));
+            todo.put(
+                    IMMAGINE, rs.getBytes(IMMAGINE));
+            todo.put(
+                    COLORE_SFONDO, rs.getString(COLORE_SFONDO));
+            todo.put(
+                    COMPLETATO, rs.getBoolean(COMPLETATO));
+            todo.put(
+                    AUTORE, autore);
+            todo.put(
+                    TITOLO_BACHECA, titoloBacheca);
+            out.put(rs.getInt("idTodo"), todo);
+        }
+
+        return out;
+    }
+
+    @Override
+    public void aggiornaTodo(Integer indice, Map<String, Object> todo) throws SQLException {
+        ConnessioneDatabase conn = ConnessioneDatabase.getInstance();
+
+        String query = "UPDATE TODO SET " +
+                "titolo = ?, " +
+                "scadenza = ?, " +
+                "linkAttivita = ?, " +
+                "descrizione = ?, " +
+                "immagine = ?, " +
+                "coloreSfondo = ?, " +
+                "completato = ? " +
+                "WHERE idTodo = ?";
+        PreparedStatement statement = conn.prepareStatement(query);
+        statement.setString(1,
+                (String) todo.get(TITOLO));
+        Date scadenza = (Date) todo.get(SCADENZA);
+        if (scadenza != null) {
+            statement.setDate(2, new java.sql.Date(
+                    scadenza.getTime()));
+        } else {
+            statement.setDate(2, null);
+        }
+        statement.setString(3,
+                (String) todo.get(LINK_ATTIVITA));
+        statement.setString(4,
+                (String) todo.get(DESCRIZIONE));
+        statement.setBytes(5,
+                (byte[]) todo.get(IMMAGINE));
+        statement.setString(6,
+                (String) todo.get(COLORE_SFONDO));
+        statement.setBoolean(7,
+                (boolean) todo.get(COMPLETATO));
+        statement.setInt(8, indice);
+        ToDoLogger.getInstance().logQuery(statement.toString());
+        statement.execute();
+    }
+}

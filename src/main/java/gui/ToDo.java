@@ -1,6 +1,7 @@
 package gui;
 
 import controller.Controller;
+import logger.ToDoLogger;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -63,10 +64,13 @@ public class ToDo {
         this.controller = Controller.getInstance();
         this.indice = indice;
 
-        creaUI();
-
+        creaGUI();
 
         creaListener(frame, indice);
+
+        for (Integer i : controller.attivitaTodo(indice)) {
+            aggiungiAttivita(i);
+        }
 
         setColoreTitolo();
     }
@@ -237,7 +241,6 @@ public class ToDo {
             setColoreTitolo();
         });
 
-        stato.addActionListener(_ -> aggiorna());
         colorButton.addActionListener(_ -> cambiaColore());
     }
 
@@ -265,7 +268,7 @@ public class ToDo {
         );
     }
 
-    protected void creaUI() {
+    protected void creaGUI() {
         panel = new JPanel();
         panel.setLayout(
                 new BoxLayout(panel, BoxLayout.Y_AXIS)
@@ -430,10 +433,6 @@ public class ToDo {
 
     public JButton getSpostaDestraButton() { return spostaDestraButton; }
 
-    public void aggiorna() {
-        if (indice == -1) return;
-    }
-
     public boolean inRitardo() {
         if (scadenza == null)
             return false;
@@ -441,7 +440,29 @@ public class ToDo {
         return scadenza.compareTo(current) < 0;
     }
 
-    public void cambiaImmagine() {
+    private void cambiaImmagine() {
+        JFileChooser fc = getSelettoreImmagini();
+        int returnValue = fc.showOpenDialog(panel);
+        if (returnValue == JFileChooser.APPROVE_OPTION) {
+            File file = fc.getSelectedFile();
+            byte[] bytes;
+
+            try {
+                bytes = Files.readAllBytes(file.toPath());
+            } catch (IOException e) {
+                ToDoLogger.getInstance().logError(e);
+                JOptionPane.showMessageDialog(
+                        panel, "Errore nell'apertura dell'immagine.",
+                        "Image error", JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+
+            setImmagine(bytes);
+        }
+    }
+
+    private static JFileChooser getSelettoreImmagini() {
         FileFilter filter = new FileFilter() {
             @Override
             public boolean accept(File f) {
@@ -473,27 +494,10 @@ public class ToDo {
 
         JFileChooser fc = new JFileChooser();
         fc.addChoosableFileFilter(filter);
-        int returnValue = fc.showOpenDialog(panel);
-        if (returnValue == JFileChooser.APPROVE_OPTION) {
-            File file = fc.getSelectedFile();
-            byte[] bytes;
-
-            try {
-                bytes = Files.readAllBytes(file.toPath());
-            } catch (IOException e) {
-                System.out.println(e);
-                JOptionPane.showMessageDialog(
-                        panel, "Errore nell'apertura dell'immagine.",
-                        "Image error", JOptionPane.ERROR_MESSAGE
-                );
-                return;
-            }
-
-            setImmagine(bytes);
-        }
+        return fc;
     }
 
-    public void setImmagine() {
+    private void setImmagine() {
         byte[] dati = controller.getImmagineToDo(indice);
         if (dati == null) {
             return;
@@ -501,13 +505,13 @@ public class ToDo {
         setImmagine(dati);
     }
 
-    public void setImmagine(byte[] dati) {
+    private void setImmagine(byte[] dati) {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(dati);
         BufferedImage image;
         try {
             image = ImageIO.read(inputStream);
         } catch (IOException e) {
-            System.out.println(e);
+            ToDoLogger.getInstance().logError(e);
             JOptionPane.showMessageDialog(
                     panel, "Errore nell'apertura dell'immagine.",
                     "Image error", JOptionPane.ERROR_MESSAGE
@@ -524,15 +528,31 @@ public class ToDo {
         immagineButton.setVisible(false);
     }
 
-    public void rimuoviImmagine() {
+    private void rimuoviImmagine() {
         labelImmagine.setIcon(null);
         controller.setImmagineToDo(indice, null);
         labelImmagine.setVisible(false);
         immagineButton.setVisible(true);
     }
 
-    public void aggiungiAttivita() {
-        Attivita attivita = new Attivita();
+    private void aggiungiAttivita() {
+        int indiceAttivita;
+
+        try {
+            indiceAttivita = controller.aggiungiAttivita(indice);
+        } catch (SQLException e) {
+            ToDoLogger.getInstance().logError(e);
+            JOptionPane.showMessageDialog(
+                    panel, "Errore durante l'aggiunta dell'attività.",
+                    "Activity error", JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+        aggiungiAttivita(indiceAttivita);
+    }
+
+    private void aggiungiAttivita(int indiceAttivita) {
+        Attivita attivita = new Attivita(indiceAttivita);
 
         containerAttivita.add(attivita.getPanel());
         containerAttivita.repaint();
@@ -542,24 +562,35 @@ public class ToDo {
 
 
         attivita.getCancellaButton().addActionListener(
-                _ -> rimuoviAttivita(listaAttivita.indexOf(attivita))
+                _ -> rimuoviAttivita(attivita)
         );
 
+        attivita.getCheckbox().addActionListener(_ -> setColoreTitolo());
+
         stato.setVisible(false);
+        setColoreTitolo();
     }
 
-    public void rimuoviAttivita(int indiceAttivita) {
-        Attivita attivita = listaAttivita.get(indiceAttivita);
+    private void rimuoviAttivita(Attivita attivita) {
+        try {
+            controller.rimuoviAttivita(this.indice, attivita.getIndice());
+        } catch (SQLException e) {
+            ToDoLogger.getInstance().logError(e);
+            JOptionPane.showMessageDialog(
+                    panel, "Errore durante la rimozione dell'attività.",
+                    "Activity error", JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+        listaAttivita.remove(attivita);
         containerAttivita.remove(attivita.getPanel());
         containerAttivita.repaint();
         containerAttivita.revalidate();
-        listaAttivita.remove(indiceAttivita);
         if (listaAttivita.isEmpty())
             stato.setVisible(true);
-        controller.rimuoviAttivita(this.indice, indiceAttivita);
     }
 
-    protected void cambiaColore() {
+    private void cambiaColore() {
         SelettoreColore selettore = SelettoreColore.create(panel.getBackground());
         if (!selettore.isOk()) {
             return;

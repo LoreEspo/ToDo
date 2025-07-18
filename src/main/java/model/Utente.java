@@ -2,7 +2,7 @@ package model;
 
 import java.util.*;
 
-public class Utente {
+public class Utente implements Mappabile {
 	private final String username;
 	private final String password;
 
@@ -35,7 +35,7 @@ public class Utente {
 	}
 
 	public ToDo creaToDo(int indiceBacheca) {
-		return new ToDo(this, bacheche.get(indiceBacheca));
+		return new ToDo(this.getUsername(), bacheche.get(indiceBacheca).getTitolo());
 	}
 
 	public void eliminaToDo(Integer indice) {
@@ -45,5 +45,27 @@ public class Utente {
 	public void spostaToDo(ToDo todo, Integer bachecaDa, Integer bachecaA) {
 		bacheche.get(bachecaDa).rimuoviToDo(todo);
 		bacheche.get(bachecaA).aggiungiToDo(todo);
+	}
+
+	public Attivita getAttivita(int indice) {
+		for (ToDo todo : todoMap.values()) {
+			if (todo.getListaAttivita().containsKey(indice)) {
+				return todo.getListaAttivita().get(indice);
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public Map<String, Object> aMap() {
+		Map<String, Object> map = new HashMap<>();
+		map.put("username", username);
+		map.put("password", password);
+
+		return map;
+	}
+
+	public static Utente daMap(Map<String, Object> map) {
+		return new Utente((String) map.get("username"), (String) map.get("password"));
 	}
 }

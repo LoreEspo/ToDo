@@ -5,11 +5,23 @@ import model.ToDo;
 import model.Utente;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Map;
 
 public interface ToDoDAO {
-    Integer aggiungi(ToDo todo) throws SQLException;
+    String TITOLO = "titolo";
+    String SCADENZA = "scadenza";
+    String LINK_ATTIVITA = "linkAttivita";
+    String DESCRIZIONE = "descrizione";
+    String IMMAGINE = "immagine";
+    String COLORE_SFONDO = "coloreSfondo";
+    String COMPLETATO = "completato";
+    String LISTA_ATTIVITA = "listaAttivita";
+    String AUTORE = "autore";
+    String TITOLO_BACHECA = "titoloBacheca";
+
+    Integer aggiungi(Map<String, Object> todo) throws SQLException;
     void rimuovi(Integer id) throws SQLException;
-    Map<Integer, ToDo> todoBacheca(Utente utente, Bacheca bacheca) throws SQLException;
-    void aggiornaTodo(Integer indice, ToDo todo) throws SQLException;
+    Map<Integer, Map<String, Object>> todoBacheca(String autore, String titoloBacheca) throws SQLException;
+    void aggiornaTodo(Integer indice, Map<String, Object> todo) throws SQLException;
 }

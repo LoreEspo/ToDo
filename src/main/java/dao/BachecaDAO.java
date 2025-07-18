@@ -1,14 +1,15 @@
 package dao;
 
-import model.Bacheca;
-import model.Utente;
-
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 public interface BachecaDAO {
-    List<Bacheca> bachecheDisponibili(Utente utente) throws SQLException;
+    String TITOLO = "titolo";
+    String DESCRIZIONE = "descrizione";
+    String AUTORE = "autore";
 
+    List<Map<String, Object>> bachecheDisponibili(String autore) throws SQLException;
     void setStatoBacheca(String autore, String titolo, boolean aperta) throws SQLException;
     void setDescrizione(String autore, String titolo, String descrizione) throws SQLException;
 

@@ -6,7 +6,7 @@ CREATE TABLE TODO (
 	descrizione TEXT DEFAULT '',
 	immagine BYTEA,
     coloreSfondo TEXT,
-    completato BOOLEAN,
+    completato BOOLEAN DEFAULT false,
     autore NOME_UTENTE NOT NULL,
     titoloBacheca NOME_BACHECA NOT NULL,
     FOREIGN KEY (autore, titoloBacheca) REFERENCES BACHECA(autore, titolo)

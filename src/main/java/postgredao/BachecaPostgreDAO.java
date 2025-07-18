@@ -1,34 +1,35 @@
-package postgreDAO;
+package postgredao;
 
 import dao.BachecaDAO;
 import db.ConnessioneDatabase;
-import model.Bacheca;
-import model.Utente;
+import logger.ToDoLogger;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class BachecaPostgreDAO implements BachecaDAO {
 
     @Override
-    public List<Bacheca> bachecheDisponibili(Utente utente) throws SQLException {
-        List<Bacheca> output = new ArrayList<>();
+    public List<Map<String, Object>> bachecheDisponibili(String autore) throws SQLException {
+        List<Map<String, Object>> output = new ArrayList<>();
 
         ConnessioneDatabase conn = ConnessioneDatabase.getInstance();
 
-        String query = "SELECT * FROM BACHECA WHERE autore = '" + utente.getUsername() + "' ORDER BY titolo";
+        String query = "SELECT * FROM BACHECA WHERE autore = '" + autore + "' ORDER BY titolo";
+        ToDoLogger.getInstance().logQuery(query);
 
         ResultSet rs = conn.prepareStatement(query).executeQuery();
 
         while (rs.next()) {
-            Bacheca bacheca = new Bacheca(
-                    Bacheca.NomeBacheca.daString(rs.getString("titolo")),
-                    rs.getString("descrizione"),
-                    rs.getString("autore")
-            );
+            Map<String, Object> bacheca = new HashMap<>();
+            bacheca.put(TITOLO, rs.getString(TITOLO));
+            bacheca.put(DESCRIZIONE, rs.getString(DESCRIZIONE));
+            bacheca.put(AUTORE, rs.getString(AUTORE));
             output.add(bacheca);
         }
 
@@ -41,6 +42,7 @@ public class BachecaPostgreDAO implements BachecaDAO {
 
         String query = "UPDATE BACHECA SET aperta = " + (aperta ? "true" : "false") + " WHERE autore = '" + autore +
                 "' AND titolo = '" + titolo + "'";
+        ToDoLogger.getInstance().logQuery(query);
 
         conn.prepareStatement(query).execute();
     }
@@ -51,6 +53,7 @@ public class BachecaPostgreDAO implements BachecaDAO {
 
         String query = "UPDATE BACHECA SET aperta = ? WHERE autore = '" + autore +
                 "' AND titolo = '" + titolo + "'";
+        ToDoLogger.getInstance().logQuery(query);
 
         PreparedStatement statement = conn.prepareStatement(query);
         statement.setString(1, descrizione);

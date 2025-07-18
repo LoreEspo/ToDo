@@ -1,9 +1,8 @@
-package postgreDAO;
+package postgredao;
 
 import dao.UtenteDAO;
 import db.ConnessioneDatabase;
-import org.postgresql.util.PSQLException;
-
+import logger.ToDoLogger;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,6 +15,7 @@ public class UtentePostgreDAO implements UtenteDAO {
 
 		PreparedStatement statement = conn.prepareStatement(query);
 		ResultSet rs = statement.executeQuery();
+		ToDoLogger.getInstance().logQuery(query);
 
 		return rs.next();
 	}
@@ -24,12 +24,13 @@ public class UtentePostgreDAO implements UtenteDAO {
 		ConnessioneDatabase conn = ConnessioneDatabase.getInstance();
 
 		try {
+			String query = String.format("INSERT INTO UTENTE VALUES ('%s', '%s')", username, password);
 			conn.prepareStatement(
-					String.format("INSERT INTO UTENTE VALUES ('%s', '%s')", username, password)
+					query
 			).execute();
+			ToDoLogger.getInstance().logQuery(query);
 		} catch (SQLException e) {
-			System.out.println("Errore nella registrazione: " + e.getMessage());
-			e.printStackTrace();
+			ToDoLogger.getInstance().logError(e);
 			return false;
 		}
 

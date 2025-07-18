@@ -1,6 +1,7 @@
 package gui;
 
 import controller.Controller;
+import logger.ToDoLogger;
 
 import javax.swing.*;
 import java.awt.event.*;
@@ -29,8 +30,8 @@ public class LoginDialog extends JDialog {
 		buttonOK.addActionListener(_ -> {
             try {
                 onOK();
-            } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+            } catch (SQLException e) {
+				ToDoLogger.getInstance().logError(e);
             }
         });
 

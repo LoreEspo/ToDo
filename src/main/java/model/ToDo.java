@@ -1,10 +1,10 @@
 package model;
 
-import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.Date;
-import java.util.List;
 
-public class ToDo {
+public class ToDo implements Mappabile {
     private String titolo = "Titolo";
     private Date scadenza;
     private String linkAttivita;
@@ -12,13 +12,13 @@ public class ToDo {
     private byte[] immagine;
     private String coloreSfondo;
     private boolean completato = false;
-    private final List<Attivita> listaAttivita = new ArrayList<>();
-    private Utente utente;
-    private Bacheca bacheca;
+    private final Map<Integer, Attivita> listaAttivita = new HashMap<>();
+    private final String autore;
+    private Bacheca.NomeBacheca titoloBacheca;
 
-    public ToDo(Utente utente, Bacheca bacheca) {
-        this.utente = utente;
-        this.bacheca = bacheca;
+    public ToDo(String autore, Bacheca.NomeBacheca titoloBacheca) {
+        this.autore = autore;
+        this.titoloBacheca = titoloBacheca;
     }
 
     public String getColoreSfondo() {
@@ -31,7 +31,7 @@ public class ToDo {
 
     public boolean getCompletato() {
         if (!listaAttivita.isEmpty()) {
-            for (Attivita attivita : listaAttivita) {
+            for (Attivita attivita : listaAttivita.values()) {
                 if (!attivita.getCompletato()) {
                     return false;
                 }
@@ -71,23 +71,22 @@ public class ToDo {
 
     public void setImmagine(byte[] nuovaImmagine) {
         immagine = nuovaImmagine;
-        System.out.println(immagine);
     }
 
-    public void aggiungiAttivita(Attivita attivita) {
-        listaAttivita.add(attivita);
+    public Map<Integer, Attivita> getListaAttivita() {
+        return listaAttivita;
     }
 
-    public void eliminaAttivita(Attivita attivita) {
-        listaAttivita.remove(attivita);
+    public void aggiungiAttivita(Integer indice, Attivita attivita) {
+        listaAttivita.put(indice, attivita);
     }
 
-    public void eliminaAttivita(int indiceAttivita) {
-        listaAttivita.remove(indiceAttivita);
+    public void eliminaAttivita(int indice) {
+        listaAttivita.remove(indice);
     }
 
-    public Utente getUtente() {
-        return utente;
+    public String getAutore() {
+        return autore;
     }
 
     public String getDescrizione() {
@@ -98,11 +97,41 @@ public class ToDo {
         this.descrizione = descrizione;
     }
 
-    public Bacheca getBacheca() {
-        return bacheca;
+    public Bacheca.NomeBacheca getTitoloBacheca() {
+        return titoloBacheca;
     }
 
-    public void setBacheca(Bacheca bacheca) {
-        this.bacheca = bacheca;
+    public void setTitoloBacheca(Bacheca.NomeBacheca titoloBacheca) {
+        this.titoloBacheca = titoloBacheca;
+    }
+
+    @Override
+    public Map<String, Object> aMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("titolo", titolo);
+        map.put("scadenza", scadenza);
+        map.put("linkAttivita", linkAttivita);
+        map.put("descrizione", descrizione);
+        map.put("immagine", immagine);
+        map.put("coloreSfondo", coloreSfondo);
+        map.put("completato", completato);
+        map.put("autore", autore);
+        map.put("titoloBacheca", titoloBacheca.valore);
+
+        return map;
+    }
+
+    public static ToDo daMap(Map<String, Object> map) {
+        ToDo todo = new ToDo(
+                (String) map.get("autore"), Bacheca.NomeBacheca.daString((String) map.get("titoloBacheca"))
+        );
+        todo.setTitolo((String) map.get("titolo"));
+        todo.setScadenza((Date) map.get("scadenza"));
+        todo.setLinkAttivita((String) map.get("linkAttivita"));
+        todo.setDescrizione((String) map.get("descrizione"));
+        todo.setImmagine((byte[]) map.get("immagine"));
+        todo.setColoreSfondo((String) map.get("coloreSfondo"));
+
+        return todo;
     }
 }

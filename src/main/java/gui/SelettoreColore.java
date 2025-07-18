@@ -5,10 +5,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class SelettoreColore extends JDialog {
-    private JPanel panel;
-    private JButton buttonOK;
-    private JButton buttonCancel;
-    private JColorChooser colorChooser;
+    private final JColorChooser colorChooser;
     private boolean ok = false;
 
 
@@ -17,7 +14,7 @@ public class SelettoreColore extends JDialog {
     }
 
     public SelettoreColore(Color coloreIniziale) {
-        panel = new JPanel();
+        JPanel panel = new JPanel();
         panel.setLayout(
                 new BorderLayout()
         );
@@ -26,17 +23,17 @@ public class SelettoreColore extends JDialog {
                 new BorderLayout()
         );
 
-        JPanel tmp_panel = new JPanel();
-        tmp_panel.setLayout(
+        JPanel tmpPanel = new JPanel();
+        tmpPanel.setLayout(
                 new FlowLayout()
         );
 
-        buttonOK = new JButton("OK");
-        buttonCancel = new JButton("Annulla");
+        JButton buttonOK = new JButton("OK");
+        JButton buttonCancel = new JButton("Annulla");
 
-        tmp_panel.add(buttonOK);
-        tmp_panel.add(buttonCancel);
-        bottoni.add(tmp_panel, BorderLayout.EAST);
+        tmpPanel.add(buttonOK);
+        tmpPanel.add(buttonCancel);
+        bottoni.add(tmpPanel, BorderLayout.EAST);
 
         colorChooser = new JColorChooser(coloreIniziale);
         panel.add(colorChooser, BorderLayout.CENTER);
@@ -47,32 +44,22 @@ public class SelettoreColore extends JDialog {
         getRootPane().setDefaultButton(buttonOK);
 
 
-        buttonOK.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onOK();
-            }
-        });
+        buttonOK.addActionListener(e -> onOK());
 
-        buttonCancel.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onCancel();
-            }
-        });
+        buttonCancel.addActionListener(e -> onCancel());
 
         // call onCancel() when cross is clicked
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
         addWindowListener(new WindowAdapter() {
+            @Override
             public void windowClosing(WindowEvent e) {
                 onCancel();
             }
         });
 
         // call onCancel() on ESCAPE
-        panel.registerKeyboardAction(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                onCancel();
-            }
-        }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
+        panel.registerKeyboardAction(e -> onCancel(),
+                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
     }
 
     private void onOK() {
@@ -99,10 +86,4 @@ public class SelettoreColore extends JDialog {
         return selettore;
     }
 
-    static SelettoreColore create() {
-        SelettoreColore selettore = new SelettoreColore();
-        selettore.pack();
-        selettore.setVisible(true);
-        return selettore;
-    }
 }

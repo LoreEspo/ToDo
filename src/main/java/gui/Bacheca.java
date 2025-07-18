@@ -1,6 +1,7 @@
 package gui;
 
 import controller.Controller;
+import logger.ToDoLogger;
 
 import javax.swing.*;
 import java.awt.*;
@@ -36,7 +37,7 @@ public class Bacheca {
                         try {
                             controller.chiudiBacheca();
                         } catch (SQLException ex) {
-                            System.out.println(ex);
+                            ToDoLogger.getInstance().logError(ex);
                             JOptionPane.showMessageDialog(
                                     panel, "Errore durante la chiusura. Riprova.",
                                     "Error", JOptionPane.ERROR_MESSAGE
@@ -79,13 +80,14 @@ public class Bacheca {
     private boolean salva() {
         try {
             controller.salvaToDo();
+            controller.salvaAttivita();
             JOptionPane.showMessageDialog(
                     panel, "Promemoria salvati.",
                     "Save complete", JOptionPane.PLAIN_MESSAGE
             );
             return true;
         } catch (SQLException e) {
-            System.out.println(e);
+            ToDoLogger.getInstance().logError(e);
             JOptionPane.showMessageDialog(
                     panel, "Errore durante il salvataggio dei promemoria.",
                     "Save error", JOptionPane.ERROR_MESSAGE
@@ -108,7 +110,7 @@ public class Bacheca {
         try {
             controller.chiudiBacheca();
         } catch (SQLException e) {
-            System.out.println(e);
+            ToDoLogger.getInstance().logError(e);
             JOptionPane.showMessageDialog(
                     this.panel,
                     "Errore nella chiusura della bacheca. Riprovare.",
@@ -125,7 +127,7 @@ public class Bacheca {
         try {
             indice = controller.aggiungiToDo();
         } catch (SQLException e) {
-            System.out.println(e);
+            ToDoLogger.getInstance().logError(e);
             JOptionPane.showMessageDialog(
                     panel, "Errore nella creazione del promemoria.",
                     "ToDo error", JOptionPane.ERROR_MESSAGE
@@ -167,7 +169,7 @@ public class Bacheca {
         try {
             controller.rimuoviToDo(indice);
         } catch (SQLException e) {
-            System.out.println(e);
+            ToDoLogger.getInstance().logError(e);
             JOptionPane.showMessageDialog(
                     panel, "Errore nella rimozione del promemoria.",
                     "ToDo error", JOptionPane.ERROR_MESSAGE

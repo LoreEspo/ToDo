@@ -86,6 +86,7 @@ public class SelettoreData extends JDialog {
         int anno = (Integer) spinnerAnno.getValue();
         int mese = (Integer) spinnerMese.getValue();
         int giorno = (Integer) spinnerGiorno.getValue();
+        //noinspection MagicConstant
         calendario.set(anno, mese - 1, giorno, 0, 0, 0);
 
         data = calendario.getTime();

@@ -36,3 +36,7 @@ build/
 
 ### VisualParadigm ###
 *.vpp.*
+
+### Progetto ###
+todoapp.log
+todoapp.log.lck

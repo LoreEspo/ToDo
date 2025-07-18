@@ -1,6 +1,7 @@
 package gui;
 
 import controller.Controller;
+import logger.ToDoLogger;
 
 import javax.swing.*;
 import java.awt.*;
@@ -114,7 +115,7 @@ public class MainMenu {
         try {
             controller.apriBacheca(indice);
         } catch (SQLException e) {
-            System.out.println(e);
+            ToDoLogger.getInstance().logError(e);
             JOptionPane.showMessageDialog(
                     this.panel,
                     "Errore nell'apertura della bacheca.",
@@ -135,7 +136,7 @@ public class MainMenu {
         try {
             numeroBacheche = controller.richiediBacheche();
         } catch (SQLException e) {
-            System.out.println(e);
+            ToDoLogger.getInstance().logError(e);
             JOptionPane.showMessageDialog(
                     this.panel,
                     "Non è stato possibile trovare bacheche.",

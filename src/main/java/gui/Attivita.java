@@ -1,7 +1,11 @@
 package gui;
 
+import controller.Controller;
+
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 
 public class Attivita {
@@ -10,15 +14,35 @@ public class Attivita {
     private final JCheckBox stato;
     private final JButton cancellaButton;
 
-    public Attivita() {
-        panel = new JPanel();
-        panel.setLayout(
-                new BorderLayout()
-        );
-        titolo = new JTextField();
+    private final int indice;
+
+    public Attivita(int indice) {
+        Controller controller = Controller.getInstance();
+        this.indice = indice;
+
+        panel = new JPanel(new BorderLayout());
+        titolo = new JTextField(controller.getTitoloAttivita(indice));
         panel.add(titolo, BorderLayout.CENTER);
         titolo.setBorder(
                 BorderFactory.createBevelBorder(BevelBorder.LOWERED)
+        );
+        titolo.getDocument().addDocumentListener(
+                new DocumentListener() {
+                    @Override
+                    public void insertUpdate(DocumentEvent e) {
+                        controller.setTitoloAttivita(indice, titolo.getText());
+                    }
+
+                    @Override
+                    public void removeUpdate(DocumentEvent e) {
+                        controller.setTitoloAttivita(indice, titolo.getText());
+                    }
+
+                    @Override
+                    public void changedUpdate(DocumentEvent e) {
+                        // Non necessario per i JTextField
+                    }
+                }
         );
 
         JPanel container = new JPanel();
@@ -29,15 +53,17 @@ public class Attivita {
         container.add(cancellaButton, BorderLayout.CENTER);
 
         stato = new JCheckBox();
+        stato.setSelected(controller.getCompletatoAttivita(indice));
         container.add(stato, BorderLayout.EAST);
         stato.setAlignmentX(Component.RIGHT_ALIGNMENT);
+        stato.addActionListener(_ -> controller.setCompletatoAttivita(indice, stato.isSelected()));
     }
 
     public JPanel getPanel() {
         return panel;
     }
 
-    public boolean getStato() { return stato.isSelected(); }
+    public JCheckBox getCheckbox() { return stato; }
 
     public JButton getCancellaButton() {
         return cancellaButton;
@@ -51,5 +77,9 @@ public class Attivita {
     public void setColore(Color colore) {
         stato.setBackground(colore);
         titolo.setBackground(colore);
+    }
+
+    public int getIndice() {
+        return indice;
     }
 }
