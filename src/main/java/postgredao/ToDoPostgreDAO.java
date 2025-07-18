@@ -7,10 +7,7 @@ import logger.ToDoLogger;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class ToDoPostgreDAO implements ToDoDAO {
 
@@ -30,7 +27,21 @@ public class ToDoPostgreDAO implements ToDoDAO {
             id = 0;
         }
 
-        query = "INSERT INTO TODO VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, '" + todo.get(TITOLO_BACHECA) + "')";
+        query = String.format(
+                "SELECT MAX(ordine) FROM TODO WHERE autore = '%s' AND titoloBacheca = '%s'",
+                todo.get(AUTORE), todo.get(TITOLO_BACHECA));
+        ToDoLogger.getInstance().logQuery(query);
+        rs = conn.prepareStatement(query).executeQuery();
+
+        int ordine;
+
+        if (rs.next()) {
+            ordine = rs.getInt(1) + 1;
+        } else {
+            ordine = 0;
+        }
+
+        query = "INSERT INTO TODO VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, '" + todo.get(TITOLO_BACHECA) + "')";
         // Titolo della bacheca aggiunto separatamente poiché PreparedStatement.setString() ignora il dominio
         // della colonna e la considera VARCHAR
         PreparedStatement statement = conn.prepareStatement(query);
@@ -47,7 +58,8 @@ public class ToDoPostgreDAO implements ToDoDAO {
         statement.setBytes(6, (byte[]) todo.get(IMMAGINE));
         statement.setString(7, (String) todo.get(COLORE_SFONDO));
         statement.setBoolean(8, (boolean) todo.get(COMPLETATO));
-        statement.setString(9, (String) todo.get(AUTORE));
+        statement.setInt(9, ordine);
+        statement.setString(10, (String) todo.get(AUTORE));
         ToDoLogger.getInstance().logQuery(statement.toString());
         statement.execute();
 
@@ -63,9 +75,9 @@ public class ToDoPostgreDAO implements ToDoDAO {
     @Override
     public Map<Integer, Map<String, Object>> todoBacheca(String autore, String titoloBacheca) throws SQLException {
         ConnessioneDatabase conn = ConnessioneDatabase.getInstance();
-        Map<Integer, Map<String, Object>> out = new HashMap<>();
+        Map<Integer, Map<String, Object>> out = new LinkedHashMap<>();
 
-        String query = String.format("SELECT * FROM TODO WHERE autore = '%s' AND titoloBacheca = '%s'", autore, titoloBacheca);
+        String query = String.format("SELECT * FROM TODO WHERE autore = '%s' AND titoloBacheca = '%s' ORDER BY ordine", autore, titoloBacheca);
         ToDoLogger.getInstance().logQuery(query);
         ResultSet rs = conn.prepareStatement(query).executeQuery();
 
@@ -131,5 +143,22 @@ public class ToDoPostgreDAO implements ToDoDAO {
         statement.setInt(8, indice);
         ToDoLogger.getInstance().logQuery(statement.toString());
         statement.execute();
+    }
+
+    @Override
+    public void aggiornaOrdine(Map<Integer, Integer> mappaOrdine) throws SQLException {
+        ConnessioneDatabase conn = ConnessioneDatabase.getInstance();
+        StringBuilder queryBuilder = new StringBuilder();
+
+        for (Map.Entry<Integer, Integer> todo : mappaOrdine.entrySet()) {
+            queryBuilder.append(
+                    String.format("UPDATE TODO SET ordine = %d WHERE idTodo = %d;", todo.getKey(), todo.getValue())
+            );
+        }
+
+        String query = queryBuilder.toString();
+        ToDoLogger.getInstance().logQuery(query);
+        conn.prepareStatement(query).execute();
+
     }
 }

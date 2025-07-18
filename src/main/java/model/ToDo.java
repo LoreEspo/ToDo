@@ -2,6 +2,7 @@ package model;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Date;
 
 public class ToDo implements Mappabile {
@@ -12,7 +13,7 @@ public class ToDo implements Mappabile {
     private byte[] immagine;
     private String coloreSfondo;
     private boolean completato = false;
-    private final Map<Integer, Attivita> listaAttivita = new HashMap<>();
+    private final Map<Integer, Attivita> listaAttivita = new LinkedHashMap<>();
     private final String autore;
     private Bacheca.NomeBacheca titoloBacheca;
 

@@ -81,7 +81,7 @@ public class Controller {
         bachecaAperta = utente.getBacheche().get(indice);
 
         Map<Integer, Map<String, Object>> hashmap = todoDao.todoBacheca(utente.getUsername(), bachecaAperta.getTitolo().valore);
-        Map<Integer, ToDo> toDoMap = new HashMap<>();
+        Map<Integer, ToDo> toDoMap = new LinkedHashMap<>();
         for (Map.Entry<Integer, Map<String, Object>> entry : hashmap.entrySet()) {
             toDoMap.put(entry.getKey(), ToDo.daMap(entry.getValue()));
         }
@@ -255,6 +255,13 @@ public class Controller {
         utente.getToDo(indice).setScadenza(scadenza);
         setToDoModificato(indice);
     }
+
+    public void aggiornaOrdineToDo(Map<Integer, Integer> mappaOrdine) throws SQLException {
+        ToDoDAO dao = new ToDoPostgreDAO();
+        dao.aggiornaOrdine(mappaOrdine);
+    }
+
+    // Funzioni attivita
 
     public int aggiungiAttivita(Integer indiceTodo) throws SQLException {
         if (isBachecaChiusa()) {

@@ -1,11 +1,6 @@
 package dao;
 
-import model.Bacheca;
-import model.ToDo;
-import model.Utente;
-
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Map;
 
 public interface ToDoDAO {
@@ -24,4 +19,5 @@ public interface ToDoDAO {
     void rimuovi(Integer id) throws SQLException;
     Map<Integer, Map<String, Object>> todoBacheca(String autore, String titoloBacheca) throws SQLException;
     void aggiornaTodo(Integer indice, Map<String, Object> todo) throws SQLException;
+    void aggiornaOrdine(Map<Integer, Integer> indiceAOrdine) throws SQLException;
 }

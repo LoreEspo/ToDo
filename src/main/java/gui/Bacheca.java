@@ -8,6 +8,8 @@ import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.sql.SQLException;
+import java.util.*;
+import java.util.List;
 
 
 public class Bacheca {
@@ -21,6 +23,9 @@ public class Bacheca {
     private final Controller controller;
     private final JFrame frame;
     private final JFrame mainFrame;
+
+    private final Map<Component, ToDo> wrapperATodo = new HashMap<>();
+    private boolean ordineModificato = false;
 
     public Bacheca(JFrame frame, JFrame mainFrame) {
         this.controller = Controller.getInstance();
@@ -81,6 +86,17 @@ public class Bacheca {
         try {
             controller.salvaToDo();
             controller.salvaAttivita();
+            if (ordineModificato) {
+                Map<Integer, Integer> mappa = new HashMap<>();
+                for (int i = 0; i < todoContainer.getComponentCount(); i++) {
+                    mappa.put(
+                            i, wrapperATodo.get(todoContainer.getComponent(i)).getIndice());
+                }
+                System.out.println(mappa);
+                controller.aggiornaOrdineToDo(mappa);
+
+                ordineModificato = false;
+            }
             JOptionPane.showMessageDialog(
                     panel, "Promemoria salvati.",
                     "Save complete", JOptionPane.PLAIN_MESSAGE
@@ -148,8 +164,12 @@ public class Bacheca {
         guiTodo.getCancellaButton().addActionListener(_ ->
             rimuoviToDo(wrapper, indice)
         );
+        guiTodo.getSpostaDestraButton().addActionListener(_ -> spostaToDo(wrapper, true));
+        guiTodo.getSpostaSinistraButton().addActionListener(_ -> spostaToDo(wrapper, false));
 
         wrapper.add(guiTodo.getPanel(), BorderLayout.NORTH);
+        wrapperATodo.put(wrapper, guiTodo);
+
 
         todoContainer.add(wrapper);
         todoContainer.repaint();
@@ -177,9 +197,33 @@ public class Bacheca {
             return;
         }
 
+        wrapperATodo.remove(wrapper);
         todoContainer.remove(wrapper);
         todoContainer.repaint();
         todoContainer.revalidate();
 
+    }
+
+    public void spostaToDo(JComponent wrapper, boolean destra) {
+        int offset = destra ? 1 : -1;
+
+        int indiceOriginale = -1;
+        for (int i = 0; i < todoContainer.getComponentCount(); i++) {
+            if (todoContainer.getComponent(i) == wrapper) {
+                indiceOriginale = i;
+                break;
+            }
+        }
+        if (indiceOriginale == -1 || indiceOriginale + offset < 0 || indiceOriginale + offset >= todoContainer.getComponentCount()) {
+            return;
+        }
+
+        todoContainer.remove(wrapper);
+        todoContainer.add(wrapper, indiceOriginale + offset);
+
+        todoContainer.repaint();
+        todoContainer.revalidate();
+
+        ordineModificato = true;
     }
 }

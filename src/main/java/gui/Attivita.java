@@ -76,6 +76,7 @@ public class Attivita {
 
     public void setColore(Color colore) {
         stato.setBackground(colore);
+        cancellaButton.setBackground(colore);
         titolo.setBackground(colore);
     }
 
