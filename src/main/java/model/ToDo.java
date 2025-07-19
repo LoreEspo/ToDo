@@ -16,6 +16,7 @@ public class ToDo implements Mappabile {
     private final Map<Integer, Attivita> listaAttivita = new LinkedHashMap<>();
     private final String autore;
     private Bacheca.NomeBacheca titoloBacheca;
+    private boolean condiviso = false;
 
     public ToDo(String autore, Bacheca.NomeBacheca titoloBacheca) {
         this.autore = autore;
@@ -118,6 +119,7 @@ public class ToDo implements Mappabile {
         map.put("completato", completato);
         map.put("autore", autore);
         map.put("titoloBacheca", titoloBacheca.valore);
+        map.put("condiviso", condiviso);
 
         return map;
     }
@@ -126,13 +128,21 @@ public class ToDo implements Mappabile {
         ToDo todo = new ToDo(
                 (String) map.get("autore"), Bacheca.NomeBacheca.daString((String) map.get("titoloBacheca"))
         );
-        todo.setTitolo((String) map.get("titolo"));
-        todo.setScadenza((Date) map.get("scadenza"));
-        todo.setLinkAttivita((String) map.get("linkAttivita"));
-        todo.setDescrizione((String) map.get("descrizione"));
-        todo.setImmagine((byte[]) map.get("immagine"));
-        todo.setColoreSfondo((String) map.get("coloreSfondo"));
+        todo.titolo = (String) map.get("titolo");
+        todo.scadenza = (Date) map.get("scadenza");
+        todo.linkAttivita = (String) map.get("linkAttivita");
+        todo.descrizione = (String) map.get("descrizione");
+        todo.immagine = (byte[]) map.get("immagine");
+        todo.coloreSfondo = (String) map.get("coloreSfondo");
+        Boolean condiviso = (Boolean) map.get("condiviso");
+        if (condiviso != null) {
+            todo.condiviso = condiviso;
+        }
 
         return todo;
+    }
+
+    public boolean isCondiviso() {
+        return condiviso;
     }
 }

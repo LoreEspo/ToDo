@@ -1,0 +1,6 @@
+CREATE TABLE CONDIVISI (
+    idTodo INT NOT NULL,
+    destinatario NOME_UTENTE NOT NULL,
+    FOREIGN KEY (idTodo) REFERENCES TODO(idTodo),
+    FOREIGN KEY (destinatario) REFERENCES UTENTE(username)
+)

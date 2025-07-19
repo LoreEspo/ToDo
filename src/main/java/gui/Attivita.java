@@ -69,6 +69,15 @@ public class Attivita {
         return cancellaButton;
     }
 
+    public void disabilita() {
+        cancellaButton.setEnabled(false);
+        panel.remove(cancellaButton);
+        titolo.setEnabled(false);
+        stato.setEnabled(false);
+        panel.revalidate();
+        panel.repaint();
+    }
+
     public Attivita setTitolo(String titolo) {
         this.titolo.setText(titolo);
         return this;

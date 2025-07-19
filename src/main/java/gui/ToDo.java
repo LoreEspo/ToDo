@@ -59,10 +59,12 @@ public class ToDo {
     private final GregorianCalendar calendario = (GregorianCalendar) Calendar.getInstance();
     private Date scadenza;
     private Integer indice = -1;
+    private boolean condiviso = false;
 
-    public ToDo(JFrame frame, int indice) {
+    public ToDo(JFrame frame, int indice, boolean condiviso) {
         this.controller = Controller.getInstance();
         this.indice = indice;
+        this.condiviso = condiviso;
 
         creaGUI();
 
@@ -76,6 +78,57 @@ public class ToDo {
     }
 
     private void creaListener(JFrame frame, int indice) {
+        link.addMouseListener(
+                new MouseListener() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        if (link.getText().isEmpty()) {
+                            return;
+                        }
+                        Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+                        if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+                            try {
+                                desktop.browse(new URI(link.getText()));
+                            } catch (URISyntaxException _) {
+                                JOptionPane.showMessageDialog(
+                                        panel, "URI non valido.",
+                                        "URI error", JOptionPane.ERROR_MESSAGE
+                                );
+                            } catch (IOException _) {
+                                JOptionPane.showMessageDialog(
+                                        panel, "Non è stato possibile aprire l'URI.",
+                                        "Browser error", JOptionPane.ERROR_MESSAGE
+                                );
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void mousePressed(MouseEvent e) {
+                        // Non necessario
+                    }
+
+                    @Override
+                    public void mouseReleased(MouseEvent e) {
+                        // Non necessario
+                    }
+
+                    @Override
+                    public void mouseEntered(MouseEvent e) {
+                        link.setForeground(URI_HOVERED);
+                    }
+
+                    @Override
+                    public void mouseExited(MouseEvent e) {
+                        link.setForeground(URI_NORMAL);
+                    }
+                }
+        );
+
+        if (condiviso) {
+            return;
+        }
+
         titolo.addMouseListener(
                 new MouseListener() {
                     @Override
@@ -178,52 +231,6 @@ public class ToDo {
             }
         });
 
-        link.addMouseListener(
-                new MouseListener() {
-                    @Override
-                    public void mouseClicked(MouseEvent e) {
-                        if (link.getText().isEmpty()) {
-                            return;
-                        }
-                        Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
-                        if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
-                            try {
-                                desktop.browse(new URI(link.getText()));
-                            } catch (URISyntaxException _) {
-                                JOptionPane.showMessageDialog(
-                                        panel, "URI non valido.",
-                                        "URI error", JOptionPane.ERROR_MESSAGE
-                                );
-                            } catch (IOException _) {
-                                JOptionPane.showMessageDialog(
-                                        panel, "Non è stato possibile aprire l'URI.",
-                                        "Browser error", JOptionPane.ERROR_MESSAGE
-                                );
-                            }
-                        }
-                    }
-
-                    @Override
-                    public void mousePressed(MouseEvent e) {
-                        // Non necessario
-                    }
-
-                    @Override
-                    public void mouseReleased(MouseEvent e) {
-                        // Non necessario
-                    }
-
-                    @Override
-                    public void mouseEntered(MouseEvent e) {
-                        link.setForeground(URI_HOVERED);
-                    }
-
-                    @Override
-                    public void mouseExited(MouseEvent e) {
-                        link.setForeground(URI_NORMAL);
-                    }
-                }
-        );
 
         dataButton.addActionListener(_ -> {
             calendario.setTime(new Date());
@@ -242,6 +249,9 @@ public class ToDo {
         });
 
         colorButton.addActionListener(_ -> cambiaColore());
+
+        condividiButton.addActionListener(_ -> MenuCondivisione.create(indice));
+
     }
 
     private void cambiaTitolo() {
@@ -281,8 +291,13 @@ public class ToDo {
         panel.add(titolo);
         titolo.setText(controller.getTitoloToDo(indice));
         titolo.setAlignmentX(Component.CENTER_ALIGNMENT);
-        Font font = titolo.getFont();
-        titolo.setFont(font.deriveFont(18.0f));
+        titolo.setFont(titolo.getFont().deriveFont(18.0f));
+
+        if (condiviso) {
+            JLabel autore = new JLabel(controller.getAutoreToDo(indice));
+            panel.add(autore);
+            panel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        }
 
 
         JPanel tmpPanel = new JPanel();
@@ -295,6 +310,7 @@ public class ToDo {
         descrizione.setBorder(
                 BorderFactory.createBevelBorder(BevelBorder.LOWERED)
         );
+        descrizione.setEnabled(!condiviso);
 
         stato = new JCheckBox();
         stato.setSelected(controller.getCompletatoToDo(indice));
@@ -304,6 +320,7 @@ public class ToDo {
         tmpPanel.setMaximumSize(
                 new Dimension(9999, tmpPanel.getPreferredSize().height)
         );
+        stato.setEnabled(!condiviso);
 
         containerImmagine = new JPanel();
         containerImmagine.setLayout(
@@ -322,10 +339,12 @@ public class ToDo {
         immagineButton.setMaximumSize(
                 new Dimension(9999, immagineButton.getPreferredSize().height)
         );
+        immagineButton.setEnabled(!condiviso);
+        immagineButton.setVisible(!condiviso);
         // Aspetta mezzo secondo per fare in modo che il pannello
         // abbia impostate le dimensioni
         Timer timer = new Timer(
-                500, e -> setImmagine()
+                250, e -> setImmagine()
         );
         timer.setRepeats(false);
         timer.start();
@@ -337,17 +356,20 @@ public class ToDo {
         link = new JLabel(controller.getLinkToDo(indice));
         link.setHorizontalAlignment(SwingConstants.CENTER);
         link.setForeground(URI_NORMAL);
-        linkButton = new JButton("\uD83D\uDD89");
-        containerLink.add(link, BorderLayout.CENTER);
-        containerLink.add(linkButton, BorderLayout.EAST);
-        panel.add(containerLink);
+        if (!condiviso) {
+            linkButton = new JButton("\uD83D\uDD89");
+            containerLink.add(link, BorderLayout.CENTER);
+            containerLink.add(linkButton, BorderLayout.EAST);
+            panel.add(containerLink);
+        }
 
 
-        tmpPanel = new JPanel();
-        tmpPanel.setLayout(new GridLayout(1, 2));
-        colorButton = new JButton();
-        tmpPanel.add(colorButton);
-        colorButton.setText("Sfondo");
+        tmpPanel = new JPanel(new GridLayout(1, condiviso ? 1 : 2));
+        if (!condiviso) {
+            colorButton = new JButton();
+            tmpPanel.add(colorButton);
+            colorButton.setText("Sfondo");
+        }
 
         dataButton = new JButton();
         tmpPanel.add(dataButton);
@@ -359,48 +381,54 @@ public class ToDo {
         );
         scadenza = controller.getScadenzaToDo(indice);
         aggiornaScadenza();
+        dataButton.setEnabled(!condiviso);
 
         containerAttivita = new JPanel();
         containerAttivita.setLayout(
                 new GridLayout(0, 1)
         );
         panel.add(containerAttivita);
+        if (!condiviso) {
+            attivitaButton = new JButton("Aggiungi attività");
+            attivitaButton.addActionListener(_ -> aggiungiAttivita());
+            containerAttivita.add(attivitaButton);
+        }
 
-        attivitaButton = new JButton("Aggiungi attività");
-        attivitaButton.addActionListener(_ -> aggiungiAttivita());
-        containerAttivita.add(attivitaButton);
+        if (!condiviso) {
+            tmpPanel = new JPanel();
+            tmpPanel.setLayout(new GridLayout(1, 2));
+            condividiButton = new JButton();
+            condividiButton.setText("Condividi");
+            cancellaButton = new JButton();
+            cancellaButton.setText("Cancella");
+            tmpPanel.add(condividiButton);
+            tmpPanel.add(cancellaButton);
+            panel.add(tmpPanel);
+            tmpPanel.setMaximumSize(
+                    new Dimension(9999, tmpPanel.getPreferredSize().height)
+            );
+        }
 
-        tmpPanel = new JPanel();
-        tmpPanel.setLayout(new GridLayout(1, 2));
-        condividiButton = new JButton();
-        condividiButton.setText("Condividi");
-        cancellaButton = new JButton();
-        cancellaButton.setText("Cancella");
-        tmpPanel.add(condividiButton);
-        tmpPanel.add(cancellaButton);
-        panel.add(tmpPanel);
-        tmpPanel.setMaximumSize(
-                new Dimension(9999, tmpPanel.getPreferredSize().height)
-        );
+        if (!condiviso) {
+            tmpPanel = new JPanel(new BorderLayout());
+            spostaBachecaButton = new JButton("Cambia bacheca");
+            tmpPanel.add(spostaBachecaButton, BorderLayout.CENTER);
+            panel.add(tmpPanel);
 
-        tmpPanel = new JPanel(new BorderLayout());
-        spostaBachecaButton = new JButton("Cambia bacheca");
-        tmpPanel.add(spostaBachecaButton, BorderLayout.CENTER);
-        panel.add(tmpPanel);
+            tmpPanel = new JPanel();
+            tmpPanel.setLayout(new GridLayout(1, 2));
+            spostaSinistraButton = new JButton();
+            spostaSinistraButton.setText("⟵");
+            tmpPanel.add(spostaSinistraButton);
 
-        tmpPanel = new JPanel();
-        tmpPanel.setLayout(new GridLayout(1, 2));
-        spostaSinistraButton = new JButton();
-        spostaSinistraButton.setText("⟵");
-        tmpPanel.add(spostaSinistraButton);
-
-        spostaDestraButton = new JButton();
-        spostaDestraButton.setText("⟶");
-        tmpPanel.add(spostaDestraButton);
-        panel.add(tmpPanel);
-        tmpPanel.setMaximumSize(
-                new Dimension(9999, tmpPanel.getPreferredSize().height)
-        );
+            spostaDestraButton = new JButton();
+            spostaDestraButton.setText("⟶");
+            tmpPanel.add(spostaDestraButton);
+            panel.add(tmpPanel);
+            tmpPanel.setMaximumSize(
+                    new Dimension(9999, tmpPanel.getPreferredSize().height)
+            );
+        }
 
 
         panel.setMaximumSize(
@@ -425,13 +453,13 @@ public class ToDo {
 
     public Integer getIndice() { return indice; }
 
-    public void setIndice(Integer indice) { this.indice = indice; }
-
     public JButton getCancellaButton() { return cancellaButton; }
 
     public JButton getSpostaSinistraButton() { return spostaSinistraButton; }
 
     public JButton getSpostaDestraButton() { return spostaDestraButton; }
+
+    public JButton getSpostaBachecaButton() { return spostaBachecaButton; }
 
     public boolean inRitardo() {
         if (scadenza == null)
@@ -502,10 +530,14 @@ public class ToDo {
         if (dati == null) {
             return;
         }
-        setImmagine(dati);
+        setImmagine(dati, false);
     }
 
     private void setImmagine(byte[] dati) {
+        setImmagine(dati, true);
+    }
+
+    private void setImmagine(byte[] dati, boolean aggiorna) {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(dati);
         BufferedImage image;
         try {
@@ -518,7 +550,7 @@ public class ToDo {
             );
             return;
         }
-        controller.setImmagineToDo(indice, dati);
+        controller.setImmagineToDo(indice, dati, aggiorna);
         int width = panel.getWidth();
         float scale = (float) width / (float) image.getWidth();
         int height = (int)(image.getHeight() * scale);
@@ -532,7 +564,8 @@ public class ToDo {
         labelImmagine.setIcon(null);
         controller.setImmagineToDo(indice, null);
         labelImmagine.setVisible(false);
-        immagineButton.setVisible(true);
+        if (condiviso)
+            immagineButton.setVisible(true);
     }
 
     private void aggiungiAttivita() {
@@ -561,11 +594,14 @@ public class ToDo {
         attivita.setColore(panel.getBackground());
 
 
-        attivita.getCancellaButton().addActionListener(
-                _ -> rimuoviAttivita(attivita)
-        );
-
-        attivita.getCheckbox().addActionListener(_ -> setColoreTitolo());
+        if (!condiviso) {
+            attivita.getCancellaButton().addActionListener(
+                    _ -> rimuoviAttivita(attivita)
+            );
+            attivita.getCheckbox().addActionListener(_ -> setColoreTitolo());
+        } else {
+            attivita.disabilita();
+        }
 
         stato.setVisible(false);
         setColoreTitolo();
@@ -634,7 +670,9 @@ public class ToDo {
         labelImmagine.setBackground(new Color(0, 0, 0, 0));
 
         for (JComponent component : componentiColorati) {
-            component.setBackground(colore);
+            if (component != null) {
+                component.setBackground(colore);
+            }
         }
 
         for (Attivita attivita : listaAttivita) {

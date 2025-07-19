@@ -15,14 +15,28 @@ public class MainMenu {
     private JPanel listaBacheche;
     private JButton logoutButton;
     private JLabel usernameLabel;
+    private JButton ricercaButton;
     private final Controller controller;
     private JFrame frame;
 
+    private int numeroBacheche;
 
     public MainMenu() {
         this.controller = Controller.getInstance();
         listaBacheche.setLayout(new BoxLayout(listaBacheche, BoxLayout.Y_AXIS));
 
+        ricercaButton.addActionListener(_ -> {
+            MenuRicerca menu = MenuRicerca.create();
+            if (menu.getBachecaSelezionata().isEmpty())
+                return;
+
+            for (int i = 0; i < numeroBacheche; i++) {
+                if (controller.getTitoloBacheca(i).equals(menu.getBachecaSelezionata())) {
+                    apriBacheca(i);
+                    break;
+                }
+            }
+        });
         logoutButton.addActionListener(_ -> logout());
         logoutButton.setVisible(false);
 
@@ -48,7 +62,6 @@ public class MainMenu {
 
         mainMenu.login();
 
-        mainMenu.sincronizzaBacheche();
     }
 
     private void login() {
@@ -59,6 +72,7 @@ public class MainMenu {
         }
         usernameLabel.setText(controller.getLoggedUsername());
         logoutButton.setVisible(true);
+        sincronizzaBacheche();
     }
 
     private void logout() {
@@ -75,10 +89,7 @@ public class MainMenu {
                 BorderFactory.createEmptyBorder(0, 8, 16, 0)
         );
 
-        JPanel tmpPanel = new JPanel();
-        tmpPanel.setLayout(
-                new GridLayout(3, 1)
-        );
+        JPanel tmpPanel = new JPanel(new GridLayout(3, 1));
 
         JLabel labelTitolo = new JLabel(titolo);
         labelTitolo.setFont(
@@ -95,9 +106,13 @@ public class MainMenu {
 
         pannelloBacheca.add(tmpPanel, BorderLayout.WEST);
 
+        tmpPanel = new JPanel(new GridLayout(2, 1));
         JButton buttonApri = new JButton("Apri");
+        JButton buttonDescrizione = new JButton("Descrizione");
+        tmpPanel.add(buttonApri);
+        tmpPanel.add(buttonDescrizione);
 
-        pannelloBacheca.add(buttonApri, BorderLayout.EAST);
+        pannelloBacheca.add(tmpPanel, BorderLayout.EAST);
 
         pannelloBacheca.setMaximumSize(
                 new Dimension(9999, pannelloBacheca.getPreferredSize().height)
@@ -105,6 +120,39 @@ public class MainMenu {
         pannelloBacheca.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         buttonApri.addActionListener(_ -> apriBacheca(indice));
+        buttonDescrizione.addActionListener(_ -> {
+            String nuovaDescrizione = "";
+
+            JTextArea textArea = new JTextArea(10, 30);
+            textArea.setText(labelDescrizione.getText());
+            JScrollPane scrollPane = new JScrollPane(textArea);
+
+            int result = JOptionPane.showConfirmDialog(
+                    panel, scrollPane,
+                    "Inserisci la descrizione.",
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.PLAIN_MESSAGE
+            );
+
+            if (result == JOptionPane.CANCEL_OPTION) {
+                return;
+            }
+            nuovaDescrizione = textArea.getText();
+            if (nuovaDescrizione.equals(labelDescrizione.getText())) {
+                return;
+            }
+
+            try {
+                controller.setDescrizioneBacheca(indice, nuovaDescrizione);
+            } catch (SQLException e) {
+                ToDoLogger.getInstance().logError(e);
+                JOptionPane.showMessageDialog(
+                        panel, "Errore nella modifica della descrizione.",
+                        "Board error", JOptionPane.ERROR_MESSAGE
+                );
+            }
+            labelDescrizione.setText(nuovaDescrizione);
+        });
 
         listaBacheche.add(pannelloBacheca);
         listaBacheche.repaint();
@@ -131,7 +179,6 @@ public class MainMenu {
             listaBacheche.remove(component);
         }
 
-        int numeroBacheche;
 
         try {
             numeroBacheche = controller.richiediBacheche();

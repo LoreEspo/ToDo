@@ -51,7 +51,9 @@ public class Controller {
         return true;
     }
 
-    public void logout() { utente = null; }
+    public void logout() {
+        utente = null;
+    }
 
     public boolean isLogged() { return utente != null; }
 
@@ -148,6 +150,15 @@ public class Controller {
         return bacheca.getDescrizione();
     }
 
+    public void setDescrizioneBacheca(int indice, String descrizione) throws SQLException {
+        Bacheca bacheca = utente.getBacheche().get(indice);
+
+        BachecaDAO dao = new BachecaPostgreDAO();
+        dao.setDescrizione(bacheca.getAutore(), bacheca.getTitolo().valore, descrizione);
+
+        bacheca.setDescrizione(descrizione);
+    }
+
     // Funzioni promemoria
 
     private void setToDoModificato(Integer indice) {
@@ -225,8 +236,13 @@ public class Controller {
     }
 
     public void setImmagineToDo(Integer indice, byte[] immagine) {
+        setImmagineToDo(indice, immagine, true);
+    }
+
+    public void setImmagineToDo(Integer indice, byte[] immagine, boolean aggiorna) {
         utente.getToDo(indice).setImmagine(immagine);
-        setToDoModificato(indice);
+        if (aggiorna)
+            setToDoModificato(indice);
     }
 
     public String getLinkToDo(Integer indice) {
@@ -256,9 +272,55 @@ public class Controller {
         setToDoModificato(indice);
     }
 
+    public String getTitoloBachecaToDo(Integer indice) {
+        return utente.getToDo(indice).getTitoloBacheca().valore;
+    }
+
+    public void setTitoloBachecaToDo(Integer indice, String titolo) {
+        utente.getToDo(indice).setTitoloBacheca(Bacheca.NomeBacheca.daString(titolo));
+        setToDoModificato(indice);
+    }
+
+    public String getAutoreToDo(Integer indice) {
+        return utente.getToDo(indice).getAutore();
+    }
+
+    public boolean isToDoCondiviso(Integer indice) {
+        return utente.getToDo(indice).isCondiviso();
+    }
+
     public void aggiornaOrdineToDo(Map<Integer, Integer> mappaOrdine) throws SQLException {
         ToDoDAO dao = new ToDoPostgreDAO();
         dao.aggiornaOrdine(mappaOrdine);
+    }
+
+    public void condividi(int indice, String username) throws SQLException {
+        if (username.equals(utente.getUsername())) {
+            throw new SQLException("Non si può condividere un todo con se stessi.");
+        }
+        ToDoDAO dao = new ToDoPostgreDAO();
+        dao.condividi(indice, username);
+    }
+
+    public void rimuoviCondivisione(int indice, String username) throws SQLException {
+        ToDoDAO dao = new ToDoPostgreDAO();
+        dao.rimuoviCondivisione(indice, username);
+    }
+
+    public List<String> condivisiDi(int indice) throws SQLException {
+        ToDoDAO dao = new ToDoPostgreDAO();
+        return dao.condivisiDi(indice);
+    }
+
+    public void spostaToDo(int indice, String bacheca) throws SQLException {
+        ToDoDAO dao = new ToDoPostgreDAO();
+        dao.sposta(indice, bacheca);
+        setTitoloBachecaToDo(indice, bacheca);
+    }
+
+    public List<Map<String, String>> ricerca(String contenuto, boolean inTitolo, boolean inDescrizione) throws SQLException {
+        ToDoDAO dao = new ToDoPostgreDAO();
+        return dao.ricerca(utente.getUsername(), contenuto, inTitolo, inDescrizione);
     }
 
     // Funzioni attivita

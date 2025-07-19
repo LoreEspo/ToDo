@@ -20,12 +20,25 @@
               <text value=""/>
             </properties>
           </component>
-          <component id="77810" class="javax.swing.JButton" binding="logoutButton">
+          <grid id="60f17" layout-manager="BorderLayout" hgap="0" vgap="0">
             <constraints border-constraint="East"/>
-            <properties>
-              <text value="Logout"/>
-            </properties>
-          </component>
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="77810" class="javax.swing.JButton" binding="logoutButton">
+                <constraints border-constraint="East"/>
+                <properties>
+                  <text value="Logout"/>
+                </properties>
+              </component>
+              <component id="f722e" class="javax.swing.JButton" binding="ricercaButton" default-binding="true">
+                <constraints border-constraint="West"/>
+                <properties>
+                  <text value="Ricerca"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
         </children>
       </grid>
       <scrollpane id="b0e11">

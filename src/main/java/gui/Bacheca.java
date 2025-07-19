@@ -20,6 +20,8 @@ public class Bacheca {
     private JButton todoButton;
     private JLabel labelAutore;
     private JButton salvaButton;
+    private JPanel mainContainer;
+    private JPanel condivisiContainer;
     private final Controller controller;
     private final JFrame frame;
     private final JFrame mainFrame;
@@ -54,12 +56,20 @@ public class Bacheca {
                 }
         );
 
+        mainContainer.setLayout(new GridLayout(2, 1));
+
         // Set todoContainer layout
         todoContainer.setBorder(
                 BorderFactory.createEmptyBorder(20, 20, 20, 20)
         );
         todoContainer.setLayout(
             new GridLayout(0, 4, 50, 30)
+        );
+        condivisiContainer.setBorder(
+                BorderFactory.createEmptyBorder(20, 20, 20, 20)
+        );
+        condivisiContainer.setLayout(
+                new GridLayout(0, 4, 50, 30)
         );
 
         this.labelNome.setText(controller.getTitoloBacheca());
@@ -74,7 +84,7 @@ public class Bacheca {
         chiudiButton.addActionListener( _ -> chiudi() );
 
         for (int indice : controller.listaToDo()) {
-            aggiungiToDo(indice);
+            aggiungiToDo(indice, controller.isToDoCondiviso(indice));
         }
     }
 
@@ -92,7 +102,6 @@ public class Bacheca {
                     mappa.put(
                             i, wrapperATodo.get(todoContainer.getComponent(i)).getIndice());
                 }
-                System.out.println(mappa);
                 controller.aggiornaOrdineToDo(mappa);
 
                 ordineModificato = false;
@@ -150,30 +159,40 @@ public class Bacheca {
             );
             return;
         }
-        aggiungiToDo(indice);
+        aggiungiToDo(indice, false);
     }
 
-    private void aggiungiToDo(Integer indice) {
+    private void aggiungiToDo(Integer indice, boolean condiviso) {
         JPanel wrapper = new JPanel();
         wrapper.setLayout(new BorderLayout());
 
-        ToDo guiTodo = new ToDo(frame, indice);
+        ToDo guiTodo = new ToDo(frame, indice, condiviso);
 
-        guiTodo.setIndice(indice);
-
-        guiTodo.getCancellaButton().addActionListener(_ ->
-            rimuoviToDo(wrapper, indice)
-        );
-        guiTodo.getSpostaDestraButton().addActionListener(_ -> spostaToDo(wrapper, true));
-        guiTodo.getSpostaSinistraButton().addActionListener(_ -> spostaToDo(wrapper, false));
+        if (!condiviso) {
+            guiTodo.getCancellaButton().addActionListener(_ ->
+                    rimuoviToDo(wrapper, indice)
+            );
+            guiTodo.getSpostaDestraButton().addActionListener(_ -> spostaToDo(wrapper, true));
+            guiTodo.getSpostaSinistraButton().addActionListener(_ -> spostaToDo(wrapper, false));
+            guiTodo.getSpostaBachecaButton().addActionListener(_ -> {
+                System.out.println(controller.getTitoloToDo(indice));
+                MenuSpostaToDo menu = MenuSpostaToDo.create(indice, controller.getTitoloBachecaToDo(indice));
+                if (menu.isSpostato()) {
+                    todoContainer.remove(wrapper);
+                    todoContainer.revalidate();
+                    todoContainer.repaint();
+                }
+            });
+        }
 
         wrapper.add(guiTodo.getPanel(), BorderLayout.NORTH);
         wrapperATodo.put(wrapper, guiTodo);
 
+        JPanel container = condiviso ? condivisiContainer : todoContainer;
 
-        todoContainer.add(wrapper);
-        todoContainer.repaint();
-        todoContainer.revalidate();
+        container.add(wrapper);
+        container.repaint();
+        container.revalidate();
 
     }
 

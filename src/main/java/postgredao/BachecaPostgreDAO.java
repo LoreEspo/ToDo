@@ -51,7 +51,7 @@ public class BachecaPostgreDAO implements BachecaDAO {
     public void setDescrizione(String autore, String titolo, String descrizione) throws SQLException {
         ConnessioneDatabase conn = ConnessioneDatabase.getInstance();
 
-        String query = "UPDATE BACHECA SET aperta = ? WHERE autore = '" + autore +
+        String query = "UPDATE BACHECA SET descrizione = ? WHERE autore = '" + autore +
                 "' AND titolo = '" + titolo + "'";
         ToDoLogger.getInstance().logQuery(query);
 
