@@ -7,11 +7,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+
+/**
+ * Implementazione per PostgreSQL di {@link UtenteDAO}.
+ */
 public class UtentePostgreDAO implements UtenteDAO {
 	public boolean login(String username, String password) throws SQLException {
 		ConnessioneDatabase conn = ConnessioneDatabase.getInstance();
 
-		String query = String.format("SELECT * FROM UTENTE WHERE username='%s' AND password='%s';", username, password);
+		String query = String.format("SELECT 1 FROM UTENTE WHERE username='%s' AND password='%s';", username, password);
 
 		PreparedStatement statement = conn.prepareStatement(query);
 		ResultSet rs = statement.executeQuery();

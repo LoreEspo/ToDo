@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 
+/**
+ * Implementazione per PostgreSQL di {@link BachecaDAO}.
+ */
 public class BachecaPostgreDAO implements BachecaDAO {
 
     @Override
@@ -34,17 +37,6 @@ public class BachecaPostgreDAO implements BachecaDAO {
         }
 
         return output;
-    }
-
-    @Override
-    public void setStatoBacheca(String autore, String titolo, boolean aperta) throws SQLException {
-        ConnessioneDatabase conn = ConnessioneDatabase.getInstance();
-
-        String query = "UPDATE BACHECA SET aperta = " + (aperta ? "true" : "false") + " WHERE autore = '" + autore +
-                "' AND titolo = '" + titolo + "'";
-        ToDoLogger.getInstance().logQuery(query);
-
-        conn.prepareStatement(query).execute();
     }
 
     @Override

@@ -5,6 +5,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Date;
 
+/**
+ * Un promemoria. Ha diversi campi opzionali e può contenere {@link Attivita} come
+ * elementi di una checklist.
+ */
 public class ToDo implements Mappabile {
     private String titolo = "Titolo";
     private Date scadenza;
@@ -18,19 +22,34 @@ public class ToDo implements Mappabile {
     private Bacheca.NomeBacheca titoloBacheca;
     private boolean condiviso = false;
 
+    /**
+     * Istanzia un promemoria.
+     *
+     * @param autore        l'autore
+     * @param titoloBacheca il titolo della bacheca che lo contiene
+     */
     public ToDo(String autore, Bacheca.NomeBacheca titoloBacheca) {
         this.autore = autore;
         this.titoloBacheca = titoloBacheca;
     }
 
+    /**
+     * @return il colore sfondo
+     */
     public String getColoreSfondo() {
         return coloreSfondo;
     }
 
+    /**
+     * @param coloreSfondo il colore sfondo da impostare
+     */
     public void setColoreSfondo(String coloreSfondo) {
         this.coloreSfondo = coloreSfondo;
     }
 
+    /**
+     * @return lo stato. Se vi sono attività, sarà completo solo se lo sono tutte le attività
+     */
     public boolean getCompletato() {
         if (!listaAttivita.isEmpty()) {
             for (Attivita attivita : listaAttivita.values()) {
@@ -43,66 +62,125 @@ public class ToDo implements Mappabile {
         return completato;
     }
 
+    /**
+     * @param completato stato da impostare. Inutile se vi sono attività
+     */
     public void setCompletato(boolean completato) { this.completato = completato; }
 
+    /**
+     * @return il titolo
+     */
     public String getTitolo() {
         return titolo;
     }
 
+    /**
+     * @param nuovoTitolo il nuovo titolo
+     */
     public void setTitolo(String nuovoTitolo) {
         titolo = nuovoTitolo;
     }
 
+    /**
+     * @return la scadenza
+     */
     public Date getScadenza() { return scadenza; }
 
+    /**
+     * @param nuovaScadenza la nuova scadenza
+     */
     public void setScadenza(Date nuovaScadenza) {
         scadenza = nuovaScadenza;
     }
 
+    /**
+     * @return il link attivita
+     */
     public String getLinkAttivita() {
         return linkAttivita;
     }
 
+    /**
+     * @param nuovoLink il nuovo link
+     */
     public void setLinkAttivita(String nuovoLink) {
         linkAttivita = nuovoLink;
     }
 
+    /**
+     * @return l'immagine come byte array
+     */
     public byte[] getImmagine() {
         return immagine;
     }
 
+    /**
+     * @param nuovaImmagine la nuova immagine come byte array
+     */
     public void setImmagine(byte[] nuovaImmagine) {
         immagine = nuovaImmagine;
     }
 
+    /**
+     * Restituisce la lista di attività, una mappa che mappa l'id dell'attività
+     * all'attività stessa.
+     *
+     * @return la lista di attivita
+     */
     public Map<Integer, Attivita> getListaAttivita() {
         return listaAttivita;
     }
 
-    public void aggiungiAttivita(Integer indice, Attivita attivita) {
-        listaAttivita.put(indice, attivita);
+    /**
+     * Aggiunge un'attivita.
+     *
+     * @param id       l'id dell'attività
+     * @param attivita l'attivita
+     */
+    public void aggiungiAttivita(int id, Attivita attivita) {
+        listaAttivita.put(id, attivita);
     }
 
-    public void eliminaAttivita(int indice) {
-        listaAttivita.remove(indice);
+    /**
+     * Elimina un'attivita.
+     *
+     * @param id l'id dell'attività
+     */
+    public void eliminaAttivita(int id) {
+        listaAttivita.remove(id);
     }
 
+    /**
+     * @return l'autore
+     */
     public String getAutore() {
         return autore;
     }
 
+    /**
+     * @return la descrizione
+     */
     public String getDescrizione() {
         return descrizione;
     }
 
+    /**
+     * @param descrizione la descrizione da impostare
+     */
     public void setDescrizione(String descrizione) {
         this.descrizione = descrizione;
     }
 
+    /**
+     * @return il titolo della bacheca
+     */
     public Bacheca.NomeBacheca getTitoloBacheca() {
         return titoloBacheca;
     }
 
+    /**
+     * @param titoloBacheca il titolo della bacheca in cui spostare il promemoria
+     */
     public void setTitoloBacheca(Bacheca.NomeBacheca titoloBacheca) {
         this.titoloBacheca = titoloBacheca;
     }
@@ -124,6 +202,12 @@ public class ToDo implements Mappabile {
         return map;
     }
 
+    /**
+     * Da {@link #aMap()} a oggetto.
+     *
+     * @param map la mappa
+     * @return l 'oggetto
+     */
     public static ToDo daMap(Map<String, Object> map) {
         ToDo todo = new ToDo(
                 (String) map.get("autore"), Bacheca.NomeBacheca.daString((String) map.get("titoloBacheca"))
@@ -142,6 +226,9 @@ public class ToDo implements Mappabile {
         return todo;
     }
 
+    /**
+     * @return se il promemoria è stato condiviso con l'utente
+     */
     public boolean isCondiviso() {
         return condiviso;
     }

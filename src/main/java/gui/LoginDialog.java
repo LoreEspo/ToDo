@@ -8,6 +8,9 @@ import java.awt.event.*;
 import java.sql.SQLException;
 
 
+/**
+ * Dialog per effettuare un accesso o una registrazione.
+ */
 public class LoginDialog extends JDialog {
 	private JPanel contentPane;
 	private JButton buttonOK;
@@ -18,7 +21,8 @@ public class LoginDialog extends JDialog {
 
 	private final transient Controller controller;
 
-	public LoginDialog() {
+
+	private LoginDialog() {
 		this.controller = Controller.getInstance();
 
 		setContentPane(contentPane);
@@ -61,9 +65,10 @@ public class LoginDialog extends JDialog {
 	}
 
 	private void onOK() throws SQLException {
-		final String ERROR_STRING = "Error";
+		final String ERROR_STRING = "Login error";
 
 		String usernameRegex = "^[a-zA-Z0-9]{3,16}$";
+		// Mostra i vari messaggi di errore
 		if (usernameField.getText().isEmpty()) {
 			JOptionPane.showMessageDialog(
 					this,
@@ -114,12 +119,18 @@ public class LoginDialog extends JDialog {
 		System.exit(0);
 	}
 
+	/// Controlla la validita della password
 	private boolean passwordValidity() {
 		String password = String.valueOf(passwordField.getPassword());
 		String passwordRegex = "^[a-zA-Z0-9._?!/@*]{6,16}$]";
 		return !password.isEmpty() && password.matches(passwordRegex);
 	}
 
+	/**
+	 * Crea e mostra il dialog.
+	 *
+	 * @return il dialog
+	 */
 	public static LoginDialog create() {
 		LoginDialog dialog = new LoginDialog();
 		dialog.pack();

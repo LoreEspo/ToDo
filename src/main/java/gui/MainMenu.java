@@ -9,6 +9,9 @@ import java.sql.SQLException;
 
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
+/**
+ * Gui del menu principale.
+ */
 public class MainMenu {
     private JPanel panel;
     private JPanel topBar;
@@ -21,7 +24,7 @@ public class MainMenu {
 
     private int numeroBacheche;
 
-    public MainMenu() {
+    private MainMenu() {
         this.controller = Controller.getInstance();
         listaBacheche.setLayout(new BoxLayout(listaBacheche, BoxLayout.Y_AXIS));
 
@@ -48,6 +51,11 @@ public class MainMenu {
         );
     }
 
+    /**
+     * Punto d'accesso dell'applicazione
+     *
+     * @param args gli argomenti da terminale
+     */
     public static void main(String[] args) {
         MainMenu mainMenu = new MainMenu();
 
@@ -64,6 +72,7 @@ public class MainMenu {
 
     }
 
+    /// Apri il dialog per l'accesso e sincronizza le bacheche.
     private void login() {
         LoginDialog.create();
         if (!controller.isLogged()) {
@@ -82,6 +91,8 @@ public class MainMenu {
         login();
     }
 
+    /// Crea da zero la gui per aprire una bacheca e aggiungila alla lista.
+    /// Mostra il titolo, l'autore e la descrizione
     private void aggiungiBachecaAllaLista(int indice, String titolo, String autore, String descrizione) {
         JPanel pannelloBacheca = new JPanel();
         pannelloBacheca.setLayout(new BorderLayout());
@@ -120,6 +131,7 @@ public class MainMenu {
         pannelloBacheca.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         buttonApri.addActionListener(_ -> apriBacheca(indice));
+        // Apri il menu per cambiare la descrizione e effettua la richiesta al database
         buttonDescrizione.addActionListener(_ -> {
             String nuovaDescrizione = "";
 
@@ -166,7 +178,7 @@ public class MainMenu {
             ToDoLogger.getInstance().logError(e);
             JOptionPane.showMessageDialog(
                     this.panel,
-                    "Errore nell'apertura della bacheca.",
+                    "Errore nella richiesta dei promemoria della bacheca. Riprovare.",
                     "Error", JOptionPane.ERROR_MESSAGE
             );
             return;
@@ -174,7 +186,8 @@ public class MainMenu {
         apriFrameBacheca();
     }
 
-    public void sincronizzaBacheche() {
+    /// Richiedi la lista di bacheche dell'utente e mostrale
+    private void sincronizzaBacheche() {
         for (Component component : listaBacheche.getComponents()) {
             listaBacheche.remove(component);
         }
@@ -202,6 +215,7 @@ public class MainMenu {
 
     }
 
+    /// Crea il frame per una bacheca e mostrala
     private void apriFrameBacheca() {
         JFrame frameBacheca = new JFrame();
         Bacheca guiBacheca = new Bacheca(frameBacheca, frame);
@@ -209,7 +223,7 @@ public class MainMenu {
         frame.setVisible(false);
         frameBacheca.setVisible(true);
         frameBacheca.setDefaultCloseOperation(EXIT_ON_CLOSE);
-        frameBacheca.setSize(frame.getSize());
+        frameBacheca.setExtendedState(Frame.MAXIMIZED_BOTH);
 
     }
 }

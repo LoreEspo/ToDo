@@ -7,6 +7,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.sql.SQLException;
 
+/**
+ * Dialog per condividere un promemoria
+ */
 public class MenuCondivisione extends JDialog {
     private JPanel contentPane;
     private JButton buttonOK;
@@ -14,12 +17,12 @@ public class MenuCondivisione extends JDialog {
     private JButton aggiungiButton;
     private JTextField inputNome;
 
-    private Controller controller;
-    private final int indice;
+    private final transient Controller controller;
+    private final int id;
 
-    public MenuCondivisione(int indice) {
+    private MenuCondivisione(int id) {
         this.controller = Controller.getInstance();
-        this.indice = indice;
+        this.id = id;
 
         setContentPane(contentPane);
         setModal(true);
@@ -27,7 +30,7 @@ public class MenuCondivisione extends JDialog {
 
         setMinimumSize(new Dimension(400, 400));
 
-        buttonOK.addActionListener(e -> dispose());
+        buttonOK.addActionListener(_ -> dispose());
 
         panel.setLayout(new GridLayout(0, 1));
 
@@ -40,7 +43,7 @@ public class MenuCondivisione extends JDialog {
         aggiungiButton.addActionListener(_ -> aggiungiAllaLista());
 
         try {
-            for (String username : controller.condivisiDi(indice)) {
+            for (String username : controller.condivisiDi(id)) {
                 aggiungiAllaLista(username);
             }
         } catch (SQLException e) {
@@ -54,12 +57,14 @@ public class MenuCondivisione extends JDialog {
         }
     }
 
+
+    /// Condividi ad un utente e aggiungilo alla lista
     private void aggiungiAllaLista() {
         String username = inputNome.getText();
         if (username.isEmpty())
             return;
         try {
-            controller.condividi(indice, username);
+            controller.condividi(id, username);
         } catch (SQLException e) {
             ToDoLogger.getInstance().logError(e);
             JOptionPane.showMessageDialog(
@@ -74,6 +79,7 @@ public class MenuCondivisione extends JDialog {
         aggiungiAllaLista(username);
     }
 
+    /// Aggiungi un username alla lista e collega il tasto per revocare la condivisione
     private void aggiungiAllaLista(String username) {
         JPanel jpanel = new JPanel(new BorderLayout());
         JLabel nome = new JLabel(username);
@@ -91,7 +97,7 @@ public class MenuCondivisione extends JDialog {
 
         cancellaButton.addActionListener(_ -> {
             try {
-                controller.rimuoviCondivisione(indice, username);
+                controller.rimuoviCondivisione(id, username);
             } catch (SQLException e) {
                 ToDoLogger.getInstance().logError(e);
                 JOptionPane.showMessageDialog(
@@ -109,8 +115,14 @@ public class MenuCondivisione extends JDialog {
         });
     }
 
-    public static MenuCondivisione create(int indice) {
-        MenuCondivisione dialog = new MenuCondivisione(indice);
+    /**
+     * Crea il menu e mostralo
+     *
+     * @param id l'id del promemoria da condividere
+     * @return il menu
+     */
+    public static MenuCondivisione create(int id) {
+        MenuCondivisione dialog = new MenuCondivisione(id);
         dialog.pack();
         dialog.setVisible(true);
         return dialog;

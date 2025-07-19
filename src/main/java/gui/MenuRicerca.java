@@ -8,6 +8,9 @@ import java.awt.*;
 import java.sql.SQLException;
 import java.util.Map;
 
+/**
+ * Dialog per cercare un promemoria fra le bacheche
+ */
 public class MenuRicerca extends JDialog {
     private JPanel contentPane;
     private JButton buttonOK;
@@ -19,7 +22,7 @@ public class MenuRicerca extends JDialog {
 
     private String bachecaSelezionata = "";
 
-    public MenuRicerca() {
+    private MenuRicerca() {
         setContentPane(contentPane);
         setModal(true);
 
@@ -43,10 +46,12 @@ public class MenuRicerca extends JDialog {
         buttonOK.addActionListener(_ -> dispose());
     }
 
+    /// Effettua la ricerca e aggiungi i risultati alla lista
     private void ricerca() {
         if (!(titolo.isSelected() || descrizione.isSelected()) || inputField.getText().isEmpty()) {
             return;
         }
+        // Ripulisci la lista dalla vecchia ricerca
         for (Component comp : lista.getComponents()) {
             lista.remove(comp);
         }
@@ -66,6 +71,7 @@ public class MenuRicerca extends JDialog {
         }
     }
 
+    /// Aggiungi un promemoria alla lista e collega il tasto per aprire la bacheca del promemoria
     private void aggiungiAllaLista(String stringaTitolo, String stringaTitoloBacheca) {
         JPanel panel = new JPanel(new BorderLayout());
         JPanel left = new JPanel(new GridLayout(2, 1));
@@ -90,8 +96,16 @@ public class MenuRicerca extends JDialog {
         lista.add(panel);
     }
 
+    /**
+     * @return la bacheca da aprire
+     */
     public String getBachecaSelezionata() { return bachecaSelezionata; }
 
+    /**
+     * Crea e mostra il menu di ricerca.
+     *
+     * @return il menu
+     */
     public static MenuRicerca create() {
         MenuRicerca dialog = new MenuRicerca();
         dialog.pack();

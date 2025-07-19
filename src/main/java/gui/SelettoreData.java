@@ -6,6 +6,9 @@ import java.awt.event.*;
 import java.util.Calendar;
 import java.util.Date;
 
+/**
+ * Dialog per selezionare una data
+ */
 public class SelettoreData extends JDialog {
     public static final int RISPOSTA_CONFERMA = 0;
     public static final int RISPOSTA_RIMUOVI = 1;
@@ -25,7 +28,7 @@ public class SelettoreData extends JDialog {
     private Date data;
     private int risposta = RISPOSTA_CANCEL;
 
-    public SelettoreData(Date dataIniziale) {
+    private SelettoreData(Date dataIniziale) {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
@@ -33,6 +36,7 @@ public class SelettoreData extends JDialog {
         spinnerContainer.setLayout(
                 new GridLayout(1, 3)
         );
+        // Modello per limitare lo spinner del giorno
         modelGiorno = new SpinnerNumberModel(1, 1, 31, 1);
         spinnerGiorno.setModel(modelGiorno);
         spinnerMese.setModel(
@@ -71,9 +75,10 @@ public class SelettoreData extends JDialog {
             setData(dataIniziale);
     }
 
+    /// Limita il giorno al massimo del mese selezionato
     private void setGiornoMassimo() {
-        calendario.set(Calendar.YEAR, (Integer) spinnerAnno.getValue());
-        calendario.set(Calendar.MONTH, (Integer) spinnerMese.getValue() - 1);
+        calendario.set(Calendar.YEAR, (int) spinnerAnno.getValue());
+        calendario.set(Calendar.MONTH, (int) spinnerMese.getValue() - 1);
         modelGiorno.setMaximum(
                 calendario.getActualMaximum(Calendar.DAY_OF_MONTH)
         );
@@ -83,9 +88,9 @@ public class SelettoreData extends JDialog {
     }
 
     private void onOK() {
-        int anno = (Integer) spinnerAnno.getValue();
-        int mese = (Integer) spinnerMese.getValue();
-        int giorno = (Integer) spinnerGiorno.getValue();
+        int anno = (int) spinnerAnno.getValue();
+        int mese = (int) spinnerMese.getValue();
+        int giorno = (int) spinnerGiorno.getValue();
         //noinspection MagicConstant
         calendario.set(anno, mese - 1, giorno, 0, 0, 0);
 
@@ -112,12 +117,24 @@ public class SelettoreData extends JDialog {
         setGiornoMassimo();
     }
 
+    /**
+     * @return la data selezionata
+     */
     public Date getData() {
         return data;
     }
 
+    /**
+     * @return la risposta selezionata, pari alle costanti RISPOSTA
+     */
     public int getRisposta() { return risposta; }
 
+    /**
+     * Crea e mostra il selettore.
+     *
+     * @param dataIniziale la data da cui parte il selettore
+     * @return il selettore
+     */
     public static SelettoreData create(Date dataIniziale) {
         SelettoreData dialog = new SelettoreData(dataIniziale);
         dialog.pack();
@@ -125,6 +142,12 @@ public class SelettoreData extends JDialog {
         return dialog;
     }
 
+    /**
+     * Crea il selettore e lo mostra,
+     * partendo dalla data attuale.
+     *
+     * @return il selettore
+     */
     public static SelettoreData create() {
         return create(null);
     }

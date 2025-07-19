@@ -5,17 +5,35 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The type Bacheca.
+ */
 public class Bacheca implements Mappabile {
 
+	/**
+	 * Enumeratore con i diversi tipi di bacheca.
+	 */
 	public enum NomeBacheca {
+		/// Bacheca dell'università
 		UNIVERSITA("Università"),
+		/// Bacheca del lavoro
 		LAVORO("Lavoro"),
+		/// Bacheca per il tempo libero
 		TEMPO_LIBERO("Tempo libero");
 
+		/// Valore costante in stringa dell'enumeratore.
 		public final String valore;
 
-		private NomeBacheca(String valore) { this.valore = valore; }
+		NomeBacheca(String valore) { this.valore = valore; }
 
+		/**
+		 * Restituisce un oggetto enumeratore
+		 * con valore in stringa
+		 * uguale a quello passato in input.
+		 *
+		 * @param stringa il valore in stringa
+		 * @return l'oggetto enumeratore
+		 */
 		public static NomeBacheca daString(String stringa) {
 			for (NomeBacheca nome : values()) {
 				if (nome.valore.equals(stringa))
@@ -31,40 +49,75 @@ public class Bacheca implements Mappabile {
 	private final ArrayList<ToDo> todo = new ArrayList<>();
 
 
+	/**
+	 * Instanzia una bacheca.
+	 *
+	 * @param titoloBacheca      il titolo della bacheca
+	 * @param descrizioneBacheca la descrizione della bacheca
+	 * @param autoreBacheca      l'autore della bacheca
+	 */
 	public Bacheca(NomeBacheca titoloBacheca, String descrizioneBacheca, String autoreBacheca) {
 		titolo = titoloBacheca;
 		descrizione = descrizioneBacheca;
 		autore = autoreBacheca;
 	}
 
+	/**
+	 * @return il titolo
+	 */
 	public NomeBacheca getTitolo() {
 		return titolo;
 	}
 
+	/**
+	 * @return la descrizione
+	 */
 	public String getDescrizione() {
 		return descrizione;
 	}
 
+	/**
+	 * @param titolo il titolo da impostare
+	 */
 	public void setTitolo(NomeBacheca titolo) {
 		this.titolo = titolo;
 	}
 
+	/**
+	 * @param descrizione la descrizione da impostare
+	 */
 	public void setDescrizione(String descrizione) {
 		this.descrizione = descrizione;
 	}
 
+	/**
+	 * @return l'autore della bacheca
+	 */
 	public String getAutore() {
 		return autore;
 	}
 
+	/**
+	 * @param autore l'autore da impostare
+	 */
 	public void setAutore(String autore) {
 		this.autore = autore;
 	}
 
+	/**
+	 * Aggiungi un promemoria.
+	 *
+	 * @param nuovoTodo il promemoria da aggiungere
+	 */
 	public void aggiungiToDo(ToDo nuovoTodo) {
 		todo.add(nuovoTodo);
 	}
 
+	/**
+	 * Rimuovi un promemoria.
+	 *
+	 * @param vecchioTodo il promemoria da rimuovere
+	 */
 	public void rimuoviToDo(ToDo vecchioTodo) {
 		todo.remove(vecchioTodo);
 	}
@@ -84,6 +137,12 @@ public class Bacheca implements Mappabile {
 		return map;
 	}
 
+	/**
+	 * Da {@link #aMap()} a oggetto.
+	 *
+	 * @param map la mappa
+	 * @return l 'oggetto
+	 */
 	public static Bacheca daMap(Map<String, Object> map) {
 		Bacheca bacheca = new Bacheca(
 				NomeBacheca.daString((String) map.get("titolo")),

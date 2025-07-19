@@ -9,9 +9,11 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.sql.SQLException;
 import java.util.*;
-import java.util.List;
 
 
+/**
+ * Gui di una bacheca.
+ */
 public class Bacheca {
     private JPanel panel;
     private JPanel todoContainer;
@@ -29,6 +31,12 @@ public class Bacheca {
     private final Map<Component, ToDo> wrapperATodo = new HashMap<>();
     private boolean ordineModificato = false;
 
+    /**
+     * Istanzia la finestra di una bacheca
+     *
+     * @param frame     il frame della bacheca
+     * @param mainFrame il frame principale al quale tornare quando chiusa
+     */
     public Bacheca(JFrame frame, JFrame mainFrame) {
         this.controller = Controller.getInstance();
         this.frame = frame;
@@ -41,16 +49,7 @@ public class Bacheca {
                 new WindowAdapter() {
                     @Override
                     public void windowClosing(WindowEvent e) {
-                        try {
-                            controller.chiudiBacheca();
-                        } catch (SQLException ex) {
-                            ToDoLogger.getInstance().logError(ex);
-                            JOptionPane.showMessageDialog(
-                                    panel, "Errore durante la chiusura. Riprova.",
-                                    "Error", JOptionPane.ERROR_MESSAGE
-                            );
-                            return;
-                        }
+                        controller.chiudiBacheca();
                         e.getWindow().dispose();
                     }
                 }
@@ -79,15 +78,18 @@ public class Bacheca {
         this.labelAutore.setText(controller.getAutoreBacheca());
 
         // Azioni
-        todoButton.addActionListener( _ -> aggiungiToDo() );
+        todoButton.addActionListener( _ -> aggiungiToDo());
         salvaButton.addActionListener(_ -> salva());
-        chiudiButton.addActionListener( _ -> chiudi() );
+        chiudiButton.addActionListener( _ -> chiudi());
 
-        for (int indice : controller.listaToDo()) {
-            aggiungiToDo(indice, controller.isToDoCondiviso(indice));
+        for (int id : controller.listaToDo()) {
+            aggiungiToDo(id, controller.isToDoCondiviso(id));
         }
     }
 
+    /**
+     * @return il JPanel della gui
+     */
     public JPanel getPanel() {
         return panel;
     }
@@ -100,7 +102,7 @@ public class Bacheca {
                 Map<Integer, Integer> mappa = new HashMap<>();
                 for (int i = 0; i < todoContainer.getComponentCount(); i++) {
                     mappa.put(
-                            i, wrapperATodo.get(todoContainer.getComponent(i)).getIndice());
+                            i, wrapperATodo.get(todoContainer.getComponent(i)).getId());
                 }
                 controller.aggiornaOrdineToDo(mappa);
 
@@ -122,6 +124,7 @@ public class Bacheca {
     }
 
     private void chiudi() {
+        // Se ci sono modifiche, chiedi di salvare
         if (controller.modificheEffettuate()) {
             int result = JOptionPane.showConfirmDialog(
                     panel, "Ci sono modifiche non salvate. Salvare?",
@@ -132,25 +135,16 @@ public class Bacheca {
             }
         }
 
-        try {
-            controller.chiudiBacheca();
-        } catch (SQLException e) {
-            ToDoLogger.getInstance().logError(e);
-            JOptionPane.showMessageDialog(
-                    this.panel,
-                    "Errore nella chiusura della bacheca. Riprovare.",
-                    "Error", JOptionPane.ERROR_MESSAGE
-            );
-            return;
-        }
+        controller.chiudiBacheca();
         mainFrame.setVisible(true);
         frame.dispose();
     }
 
+    /// Aggiungi un promemoria nuovo.
     public void aggiungiToDo() {
-        Integer indice;
+        int id;
         try {
-            indice = controller.aggiungiToDo();
+            id = controller.aggiungiToDo();
         } catch (SQLException e) {
             ToDoLogger.getInstance().logError(e);
             JOptionPane.showMessageDialog(
@@ -159,24 +153,26 @@ public class Bacheca {
             );
             return;
         }
-        aggiungiToDo(indice, false);
+        aggiungiToDo(id, false);
     }
 
-    private void aggiungiToDo(Integer indice, boolean condiviso) {
-        JPanel wrapper = new JPanel();
+
+    /// Aggiungi la gui di un promemoria con id passato in input.
+    private void aggiungiToDo(int id, boolean condiviso) {
+        JPanel wrapper = new JPanel(); // Wrapper per evitare l'espansione eccessiva dei promemoria
         wrapper.setLayout(new BorderLayout());
 
-        ToDo guiTodo = new ToDo(frame, indice, condiviso);
+        ToDo guiTodo = new ToDo(frame, id, condiviso);
 
         if (!condiviso) {
             guiTodo.getCancellaButton().addActionListener(_ ->
-                    rimuoviToDo(wrapper, indice)
+                    rimuoviToDo(wrapper, id)
             );
+            // Collega le azioni del promemoria esterne alla sua gui
             guiTodo.getSpostaDestraButton().addActionListener(_ -> spostaToDo(wrapper, true));
             guiTodo.getSpostaSinistraButton().addActionListener(_ -> spostaToDo(wrapper, false));
             guiTodo.getSpostaBachecaButton().addActionListener(_ -> {
-                System.out.println(controller.getTitoloToDo(indice));
-                MenuSpostaToDo menu = MenuSpostaToDo.create(indice, controller.getTitoloBachecaToDo(indice));
+                MenuSpostaToDo menu = MenuSpostaToDo.create(id, controller.getTitoloBachecaToDo(id));
                 if (menu.isSpostato()) {
                     todoContainer.remove(wrapper);
                     todoContainer.revalidate();
@@ -196,7 +192,13 @@ public class Bacheca {
 
     }
 
-    public void rimuoviToDo(JPanel wrapper, Integer indice) {
+    /**
+     * Rimuovi un promemoria.
+     *
+     * @param wrapper wrapper della gui del promemoria
+     * @param id      id del promemoria
+     */
+    public void rimuoviToDo(JPanel wrapper, int id) {
         int result = JOptionPane.showConfirmDialog(
                 panel, "Cancellare il promemoria?",
                 "Delete todo", JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE
@@ -206,7 +208,7 @@ public class Bacheca {
         }
 
         try {
-            controller.rimuoviToDo(indice);
+            controller.rimuoviToDo(id);
         } catch (SQLException e) {
             ToDoLogger.getInstance().logError(e);
             JOptionPane.showMessageDialog(
@@ -223,6 +225,12 @@ public class Bacheca {
 
     }
 
+    /**
+     * Sposta promemoria.
+     *
+     * @param wrapper wrapper del promemoria
+     * @param destra  se spostare a destra o sinistra
+     */
     public void spostaToDo(JComponent wrapper, boolean destra) {
         int offset = destra ? 1 : -1;
 

@@ -4,16 +4,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+/**
+ * Dialog per selezionare un colore.
+ */
 public class SelettoreColore extends JDialog {
     private final JColorChooser colorChooser;
     private boolean ok = false;
 
-
-    public SelettoreColore() {
-        this(Color.BLACK);
-    }
-
-    public SelettoreColore(Color coloreIniziale) {
+    private SelettoreColore(Color coloreIniziale) {
         JPanel panel = new JPanel();
         panel.setLayout(
                 new BorderLayout()
@@ -71,15 +69,27 @@ public class SelettoreColore extends JDialog {
         dispose();
     }
 
+    /**
+     * @return il colore selezionato
+     */
     public Color getColore() {
         return colorChooser.getColor();
     }
 
+    /**
+     * @return {@code true} se è stato premuto ok.
+     */
     public boolean isOk() {
         return ok;
     }
 
-    static SelettoreColore create(Color coloreIniziale) {
+    /**
+     * Crea il selettore e lo mostra a schermo.
+     *
+     * @param coloreIniziale il colore iniziale del selettore
+     * @return il selettore
+     */
+    public static SelettoreColore create(Color coloreIniziale) {
         SelettoreColore selettore = new SelettoreColore(coloreIniziale);
         selettore.pack();
         selettore.setVisible(true);

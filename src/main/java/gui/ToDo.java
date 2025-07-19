@@ -24,6 +24,9 @@ import java.sql.SQLException;
 import java.util.*;
 
 
+/**
+ * Gui per i promemoria.
+ */
 public class ToDo {
     private static final Color LABEL_NORMAL = Color.BLACK;
     private static final Color LABEL_HOVERED = Color.BLACK.brighter().brighter();
@@ -34,7 +37,7 @@ public class ToDo {
     private static final Color URI_NORMAL = Color.BLUE;
     private static final Color URI_HOVERED = Color.BLUE.brighter().brighter();
 
-    protected JPanel panel;
+    private JPanel panel;
     private JLabel titolo;
     private JTextArea descrizione;
     private JCheckBox stato;
@@ -58,26 +61,36 @@ public class ToDo {
     private final Controller controller;
     private final GregorianCalendar calendario = (GregorianCalendar) Calendar.getInstance();
     private Date scadenza;
-    private Integer indice = -1;
+    private int id = -1;
     private boolean condiviso = false;
 
-    public ToDo(JFrame frame, int indice, boolean condiviso) {
+    /**
+     * Instanzia un nuovo promemoria.
+     * Se il promemoria è condiviso, la gui non sarà interagibile
+     * e sarà read-only.
+     *
+     * @param frame     il frame che lo contiene
+     * @param id        l'id del promemoria al quale è legata la gui
+     * @param condiviso se il promemoria è condiviso
+     */
+    public ToDo(JFrame frame, int id, boolean condiviso) {
         this.controller = Controller.getInstance();
-        this.indice = indice;
+        this.id = id;
         this.condiviso = condiviso;
 
         creaGUI();
 
-        creaListener(frame, indice);
+        creaListener(frame, id);
 
-        for (Integer i : controller.attivitaTodo(indice)) {
+        for (int i : controller.attivitaToDo(id)) {
             aggiungiAttivita(i);
         }
 
         setColoreTitolo();
     }
 
-    private void creaListener(JFrame frame, int indice) {
+    private void creaListener(JFrame frame, int id) {
+        // Apri il link
         link.addMouseListener(
                 new MouseListener() {
                     @Override
@@ -129,6 +142,7 @@ public class ToDo {
             return;
         }
 
+        // Modifica il titolo quando premuto
         titolo.addMouseListener(
                 new MouseListener() {
                     @Override
@@ -162,12 +176,12 @@ public class ToDo {
                 new DocumentListener() {
                     @Override
                     public void insertUpdate(DocumentEvent e) {
-                        controller.setDescrizioneToDo(indice, descrizione.getText());
+                        controller.setDescrizioneToDo(id, descrizione.getText());
                     }
 
                     @Override
                     public void removeUpdate(DocumentEvent e) {
-                        controller.setDescrizioneToDo(indice, descrizione.getText());
+                        controller.setDescrizioneToDo(id, descrizione.getText());
                     }
 
                     @Override
@@ -178,10 +192,11 @@ public class ToDo {
         );
 
         stato.addActionListener(_ -> {
-            controller.setCompletatoToDo(indice, stato.isSelected());
+            controller.setCompletatoToDo(id, stato.isSelected());
             setColoreTitolo();
         });
 
+        // Cambia immagine con il tasto sinistro e rimuovila con il tasto destro
         labelImmagine.addMouseListener(
                 new MouseListener() {
                     @Override
@@ -226,7 +241,7 @@ public class ToDo {
                     "Link attività", JOptionPane.QUESTION_MESSAGE
             );
             if (url != null) {
-                controller.setLinkToDo(indice, url);
+                controller.setLinkToDo(id, url);
                 link.setText(url);
             }
         });
@@ -243,21 +258,21 @@ public class ToDo {
                 return;
             }
             scadenza = selettore.getData();
-            controller.setScadenzaToDo(indice, scadenza);
+            controller.setScadenzaToDo(id, scadenza);
             aggiornaScadenza();
             setColoreTitolo();
         });
 
         colorButton.addActionListener(_ -> cambiaColore());
 
-        condividiButton.addActionListener(_ -> MenuCondivisione.create(indice));
+        condividiButton.addActionListener(_ -> MenuCondivisione.create(id));
 
     }
 
     private void cambiaTitolo() {
         String nuovoTitolo = JOptionPane.showInputDialog("Scegli il titolo");
         if (nuovoTitolo != null && !nuovoTitolo.isEmpty() && !nuovoTitolo.equals(titolo.getText())) {
-            controller.setTitoloToDo(indice, nuovoTitolo);
+            controller.setTitoloToDo(id, nuovoTitolo);
             titolo.setText(nuovoTitolo);
         }
     }
@@ -278,7 +293,9 @@ public class ToDo {
         );
     }
 
-    protected void creaGUI() {
+    /// Crea la gui da zero e ordinala con i layout adatti.
+    /// Read-only se condiviso.
+    private void creaGUI() {
         panel = new JPanel();
         panel.setLayout(
                 new BoxLayout(panel, BoxLayout.Y_AXIS)
@@ -289,12 +306,12 @@ public class ToDo {
 
         titolo = new JLabel();
         panel.add(titolo);
-        titolo.setText(controller.getTitoloToDo(indice));
+        titolo.setText(controller.getTitoloToDo(id));
         titolo.setAlignmentX(Component.CENTER_ALIGNMENT);
         titolo.setFont(titolo.getFont().deriveFont(18.0f));
 
         if (condiviso) {
-            JLabel autore = new JLabel(controller.getAutoreToDo(indice));
+            JLabel autore = new JLabel(controller.getAutoreToDo(id));
             panel.add(autore);
             panel.setAlignmentX(Component.CENTER_ALIGNMENT);
         }
@@ -302,7 +319,7 @@ public class ToDo {
 
         JPanel tmpPanel = new JPanel();
         tmpPanel.setLayout(new BorderLayout());
-        descrizione = new JTextArea(controller.getDescrizioneToDo(indice));
+        descrizione = new JTextArea(controller.getDescrizioneToDo(id));
         tmpPanel.add(descrizione, BorderLayout.CENTER);
         descrizione.setBackground(new Color(240, 240, 240));
         descrizione.setLineWrap(true);
@@ -313,7 +330,7 @@ public class ToDo {
         descrizione.setEnabled(!condiviso);
 
         stato = new JCheckBox();
-        stato.setSelected(controller.getCompletatoToDo(indice));
+        stato.setSelected(controller.getCompletatoToDo(id));
         tmpPanel.add(stato, BorderLayout.EAST);
         panel.add(tmpPanel);
         tmpPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -353,7 +370,7 @@ public class ToDo {
         containerLink.setLayout(
                 new BorderLayout()
         );
-        link = new JLabel(controller.getLinkToDo(indice));
+        link = new JLabel(controller.getLinkToDo(id));
         link.setHorizontalAlignment(SwingConstants.CENTER);
         link.setForeground(URI_NORMAL);
         if (!condiviso) {
@@ -379,7 +396,7 @@ public class ToDo {
         tmpPanel.setMaximumSize(
                 new Dimension(9999, tmpPanel.getPreferredSize().height)
         );
-        scadenza = controller.getScadenzaToDo(indice);
+        scadenza = controller.getScadenzaToDo(id);
         aggiornaScadenza();
         dataButton.setEnabled(!condiviso);
 
@@ -435,7 +452,7 @@ public class ToDo {
                 new Dimension(9999, panel.getPreferredSize().height)
         );
 
-        String colore = controller.getColoreToDo(indice);
+        String colore = controller.getColoreToDo(id);
         if (colore != null) {
             impostaColore(new Color(Integer.parseInt(colore, 16)));
         } else {
@@ -447,27 +464,46 @@ public class ToDo {
         panel.revalidate();
     }
 
+    /**
+     * @return il JPanel della gui
+     */
     public JPanel getPanel() { return panel; }
 
-    public void setTitolo(String titolo) { this.titolo.setText(titolo); }
+    /**
+     * @return l'id legato alla gui
+     */
+    public int getId() { return id; }
 
-    public Integer getIndice() { return indice; }
-
+    /**
+     * @return il tasto per cancellare il promemoria
+     */
     public JButton getCancellaButton() { return cancellaButton; }
 
+    /**
+     * @return il tasto per spostare il promemoria a sinistra
+     */
     public JButton getSpostaSinistraButton() { return spostaSinistraButton; }
 
+    /**
+     * @return il tasto per spostare il promemoria a destra
+     */
     public JButton getSpostaDestraButton() { return spostaDestraButton; }
 
+    /**
+     * @return il tasto per spostare il promemoria in un'altra bacheca
+     */
     public JButton getSpostaBachecaButton() { return spostaBachecaButton; }
 
-    public boolean inRitardo() {
+
+    private boolean inRitardo() {
         if (scadenza == null)
             return false;
         Date current = Calendar.getInstance().getTime();
         return scadenza.compareTo(current) < 0;
     }
 
+    /// Apri l'esploratore e seleziona l'immagine da
+    /// aprire come byte array.
     private void cambiaImmagine() {
         JFileChooser fc = getSelettoreImmagini();
         int returnValue = fc.showOpenDialog(panel);
@@ -490,6 +526,7 @@ public class ToDo {
         }
     }
 
+    ///  Crea un filtro per le immagini e aggiungilo all'esploratore file.
     private static JFileChooser getSelettoreImmagini() {
         FileFilter filter = new FileFilter() {
             @Override
@@ -526,7 +563,7 @@ public class ToDo {
     }
 
     private void setImmagine() {
-        byte[] dati = controller.getImmagineToDo(indice);
+        byte[] dati = controller.getImmagineToDo(id);
         if (dati == null) {
             return;
         }
@@ -537,6 +574,7 @@ public class ToDo {
         setImmagine(dati, true);
     }
 
+    /// Imposta l'immagine, ridimensionandola alle dimensioni della gui.
     private void setImmagine(byte[] dati, boolean aggiorna) {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(dati);
         BufferedImage image;
@@ -550,7 +588,7 @@ public class ToDo {
             );
             return;
         }
-        controller.setImmagineToDo(indice, dati, aggiorna);
+        controller.setImmagineToDo(id, dati, aggiorna);
         int width = panel.getWidth();
         float scale = (float) width / (float) image.getWidth();
         int height = (int)(image.getHeight() * scale);
@@ -562,17 +600,18 @@ public class ToDo {
 
     private void rimuoviImmagine() {
         labelImmagine.setIcon(null);
-        controller.setImmagineToDo(indice, null);
+        controller.setImmagineToDo(id, null);
         labelImmagine.setVisible(false);
         if (condiviso)
             immagineButton.setVisible(true);
     }
 
+    /// Aggiungi una nuova attività.
     private void aggiungiAttivita() {
-        int indiceAttivita;
+        int idAttivita;
 
         try {
-            indiceAttivita = controller.aggiungiAttivita(indice);
+            idAttivita = controller.aggiungiAttivita(id);
         } catch (SQLException e) {
             ToDoLogger.getInstance().logError(e);
             JOptionPane.showMessageDialog(
@@ -581,11 +620,13 @@ public class ToDo {
             );
             return;
         }
-        aggiungiAttivita(indiceAttivita);
+        aggiungiAttivita(idAttivita);
     }
 
-    private void aggiungiAttivita(int indiceAttivita) {
-        Attivita attivita = new Attivita(indiceAttivita);
+    /// Aggiunge la gui di un'attività legata all'id dato in input.
+    /// Se condiviso, disabilità l'attività.
+    private void aggiungiAttivita(int idAttivita) {
+        Attivita attivita = new Attivita(idAttivita);
 
         containerAttivita.add(attivita.getPanel());
         containerAttivita.repaint();
@@ -609,7 +650,7 @@ public class ToDo {
 
     private void rimuoviAttivita(Attivita attivita) {
         try {
-            controller.rimuoviAttivita(this.indice, attivita.getIndice());
+            controller.rimuoviAttivita(this.id, attivita.getId());
         } catch (SQLException e) {
             ToDoLogger.getInstance().logError(e);
             JOptionPane.showMessageDialog(
@@ -626,6 +667,7 @@ public class ToDo {
             stato.setVisible(true);
     }
 
+    /// Cambia il colore di sfondo
     private void cambiaColore() {
         SelettoreColore selettore = SelettoreColore.create(panel.getBackground());
         if (!selettore.isOk()) {
@@ -633,20 +675,21 @@ public class ToDo {
         }
         Color colore = selettore.getColore();
         controller.setColoreToDo(
-                indice, String.format("%02X%02X%02X", colore.getRed(), colore.getGreen(), colore.getBlue())
+                id, String.format("%02X%02X%02X", colore.getRed(), colore.getGreen(), colore.getBlue())
                 );
         impostaColore(colore);
     }
 
+    /// Cambia il colore del titolo a seconda dello stato del promemoria
     private void setColoreTitolo(boolean hovered) {
         if (hovered) {
-            if (controller.getCompletatoToDo(indice)) {
+            if (controller.getCompletatoToDo(id)) {
                 titolo.setForeground(COMPLETED_HOVERED);
                 return;
             }
             titolo.setForeground(inRitardo() ? LATE_HOVERED : LABEL_HOVERED);
         } else {
-            if (controller.getCompletatoToDo(indice)) {
+            if (controller.getCompletatoToDo(id)) {
                 titolo.setForeground(COMPLETED_NORMAL);
                 return;
             }
@@ -659,6 +702,7 @@ public class ToDo {
     }
 
     private void impostaColore(Color colore) {
+        // Itera su tutti i componenti al quale va cambiato il colore
         JComponent[] componentiColorati = {
                 panel, descrizione, stato, containerImmagine,
                 immagineButton, containerLink, link, linkButton,
@@ -675,6 +719,7 @@ public class ToDo {
             }
         }
 
+        // Cambia colore anche alle attività
         for (Attivita attivita : listaAttivita) {
             attivita.setColore(panel.getBackground());
         }
