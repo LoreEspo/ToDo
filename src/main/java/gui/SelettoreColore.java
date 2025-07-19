@@ -1,99 +1,93 @@
 package gui;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import javax.swing.*;
 
 /**
  * Dialog per selezionare un colore.
  */
 public class SelettoreColore extends JDialog {
-    private final JColorChooser colorChooser;
-    private boolean ok = false;
 
-    private SelettoreColore(Color coloreIniziale) {
-        JPanel panel = new JPanel();
-        panel.setLayout(
-                new BorderLayout()
-        );
-        JPanel bottoni = new JPanel();
-        bottoni.setLayout(
-                new BorderLayout()
-        );
+	private final JColorChooser colorChooser;
+	private boolean ok = false;
 
-        JPanel tmpPanel = new JPanel();
-        tmpPanel.setLayout(
-                new FlowLayout()
-        );
+	private SelettoreColore(Color coloreIniziale) {
+		JPanel panel = new JPanel();
+		panel.setLayout(new BorderLayout());
+		JPanel bottoni = new JPanel();
+		bottoni.setLayout(new BorderLayout());
 
-        JButton buttonOK = new JButton("OK");
-        JButton buttonCancel = new JButton("Annulla");
+		JPanel tmpPanel = new JPanel();
+		tmpPanel.setLayout(new FlowLayout());
 
-        tmpPanel.add(buttonOK);
-        tmpPanel.add(buttonCancel);
-        bottoni.add(tmpPanel, BorderLayout.EAST);
+		JButton buttonOK = new JButton("OK");
+		JButton buttonCancel = new JButton("Annulla");
 
-        colorChooser = new JColorChooser(coloreIniziale);
-        panel.add(colorChooser, BorderLayout.CENTER);
-        panel.add(bottoni, BorderLayout.SOUTH);
+		tmpPanel.add(buttonOK);
+		tmpPanel.add(buttonCancel);
+		bottoni.add(tmpPanel, BorderLayout.EAST);
 
-        setContentPane(panel);
-        setModal(true);
-        getRootPane().setDefaultButton(buttonOK);
+		colorChooser = new JColorChooser(coloreIniziale);
+		panel.add(colorChooser, BorderLayout.CENTER);
+		panel.add(bottoni, BorderLayout.SOUTH);
 
+		setContentPane(panel);
+		setModal(true);
+		getRootPane().setDefaultButton(buttonOK);
 
-        buttonOK.addActionListener(e -> onOK());
+		buttonOK.addActionListener(_ -> onOK());
 
-        buttonCancel.addActionListener(e -> onCancel());
+		buttonCancel.addActionListener(_ -> dispose());
 
-        // call onCancel() when cross is clicked
-        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosing(WindowEvent e) {
-                onCancel();
-            }
-        });
+		// call onCancel() when cross is clicked
+		setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+		addWindowListener(
+			new WindowAdapter() {
+				@Override
+				public void windowClosing(WindowEvent e) {
+					dispose();
+				}
+			}
+		);
 
-        // call onCancel() on ESCAPE
-        panel.registerKeyboardAction(e -> onCancel(),
-                KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
-    }
+		// call onCancel() on ESCAPE
+		panel.registerKeyboardAction(
+			_ -> dispose(),
+			KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0),
+			JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT
+		);
+	}
 
-    private void onOK() {
-        ok = true;
-        dispose();
-    }
+	private void onOK() {
+		ok = true;
+		dispose();
+	}
 
-    private void onCancel() {
-        dispose();
-    }
+	/**
+	 * @return il colore selezionato
+	 */
+	public Color getColore() {
+		return colorChooser.getColor();
+	}
 
-    /**
-     * @return il colore selezionato
-     */
-    public Color getColore() {
-        return colorChooser.getColor();
-    }
+	/**
+	 * @return {@code true} se è stato premuto ok.
+	 */
+	public boolean isOk() {
+		return ok;
+	}
 
-    /**
-     * @return {@code true} se è stato premuto ok.
-     */
-    public boolean isOk() {
-        return ok;
-    }
-
-    /**
-     * Crea il selettore e lo mostra a schermo.
-     *
-     * @param coloreIniziale il colore iniziale del selettore
-     * @return il selettore
-     */
-    public static SelettoreColore create(Color coloreIniziale) {
-        SelettoreColore selettore = new SelettoreColore(coloreIniziale);
-        selettore.pack();
-        selettore.setVisible(true);
-        return selettore;
-    }
-
+	/**
+	 * Crea il selettore e lo mostra a schermo.
+	 *
+	 * @param coloreIniziale il colore iniziale del selettore
+	 * @return il selettore
+	 */
+	public static SelettoreColore create(Color coloreIniziale) {
+		SelettoreColore selettore = new SelettoreColore(coloreIniziale);
+		selettore.pack();
+		selettore.setVisible(true);
+		return selettore;
+	}
 }
