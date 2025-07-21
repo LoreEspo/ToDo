@@ -122,7 +122,7 @@ public class ToDoPostgreDAO implements ToDoDAO {
         todo.put(
                 COMPLETATO, rs.getBoolean(COMPLETATO));
         todo.put(
-                AUTORE, autore);
+                AUTORE, rs.getString(AUTORE));
         todo.put(
                 TITOLO_BACHECA, titoloBacheca);
         return todo;
@@ -256,10 +256,33 @@ public class ToDoPostgreDAO implements ToDoDAO {
 
         while (rs.next()) {
             Map<String, String> todo = new HashMap<>();
-            todo.put("titolo", rs.getString("titolo"));
-            todo.put("titoloBacheca", rs.getString("titoloBacheca"));
+            todo.put(TITOLO, rs.getString(TITOLO));
+            todo.put(TITOLO_BACHECA, rs.getString(TITOLO_BACHECA));
             out.add(todo);
         }
+        return out;
+    }
+
+    @Override
+    public List<Map<String, String>> inScadenza(String username, Date scadenza) throws SQLException {
+        ConnessioneDatabase conn = ConnessioneDatabase.getInstance();
+
+        List<Map<String, String>> out = new ArrayList<>();
+        PreparedStatement statement = conn.prepareStatement(
+                "SELECT titolo, titoloBacheca FROM TODO WHERE autore = ? AND scadenza <= ? ORDER BY scadenza"
+        );
+        statement.setString(1, username);
+        statement.setDate(2, new java.sql.Date(scadenza.getTime()));
+
+        ResultSet rs = statement.executeQuery();
+
+        while (rs.next()) {
+            Map<String, String> todo = new LinkedHashMap<>();
+            todo.put(TITOLO, rs.getString(TITOLO));
+            todo.put(TITOLO_BACHECA, rs.getString(TITOLO_BACHECA));
+            out.add(todo);
+        }
+
         return out;
     }
 }

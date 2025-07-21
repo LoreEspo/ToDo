@@ -37,6 +37,12 @@
                   <text value="Ricerca"/>
                 </properties>
               </component>
+              <component id="bd429" class="javax.swing.JButton" binding="scadenzaButton">
+                <constraints border-constraint="Center"/>
+                <properties>
+                  <text value="In scadenza"/>
+                </properties>
+              </component>
             </children>
           </grid>
         </children>

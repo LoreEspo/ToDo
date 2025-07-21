@@ -1,0 +1,10 @@
+CREATE OR REPLACE FUNCTION fun_todo_cancellato() RETURNS TRIGGER AS $$
+BEGIN 
+	DELETE FROM CONDIVISI WHERE idTodo = OLD.idTodo;
+	RETURN OLD;
+END $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER todo_cancellato
+    BEFORE DELETE ON TODO
+    FOR EACH ROW
+    EXECUTE FUNCTION fun_todo_cancellato();

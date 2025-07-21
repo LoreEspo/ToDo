@@ -180,11 +180,11 @@ public class Controller {
     }
 
     /**
-     * @param indice l'indice della bacheca
+     * @param id l'indice della bacheca
      * @return l'username dell'autore della bacheca
      */
-    public String getAutoreBacheca(int indice) {
-        Bacheca bacheca = utente.getBacheche().get(indice);
+    public String getAutoreBacheca(int id) {
+        Bacheca bacheca = utente.getBacheche().get(id);
         return bacheca.getAutore();
     }
 
@@ -199,11 +199,11 @@ public class Controller {
     }
 
     /**
-     * @param indice l'indice della bacheca
+     * @param id l'indice della bacheca
      * @return il titolo della bacheca
      */
-    public String getTitoloBacheca(int indice) {
-        Bacheca bacheca = utente.getBacheche().get(indice);
+    public String getTitoloBacheca(int id) {
+        Bacheca bacheca = utente.getBacheche().get(id);
         return bacheca.getTitolo().valore;
     }
 
@@ -218,11 +218,11 @@ public class Controller {
     }
 
     /**
-     * @param indice l'indice della bacheca
+     * @param id l'indice della bacheca
      * @return la descrizione della bacheca
      */
-    public String getDescrizioneBacheca(int indice) {
-        Bacheca bacheca = utente.getBacheche().get(indice);
+    public String getDescrizioneBacheca(int id) {
+        Bacheca bacheca = utente.getBacheche().get(id);
         return bacheca.getDescrizione();
     }
 
@@ -230,12 +230,12 @@ public class Controller {
      * Imposta la descrizione della bacheca, eseguendo
      * la query al database
      *
-     * @param indice      l'indice della bacheca
+     * @param id      l'indice della bacheca
      * @param descrizione la descrizione da impostare
      * @throws SQLException errori durante la query
      */
-    public void setDescrizioneBacheca(int indice, String descrizione) throws SQLException {
-        Bacheca bacheca = utente.getBacheche().get(indice);
+    public void setDescrizioneBacheca(int id, String descrizione) throws SQLException {
+        Bacheca bacheca = utente.getBacheche().get(id);
 
         BachecaDAO dao = new BachecaPostgreDAO();
         dao.setDescrizione(bacheca.getAutore(), bacheca.getTitolo().valore, descrizione);
@@ -300,7 +300,7 @@ public class Controller {
         if (isBachecaChiusa()) {
             return;
         }
-        todoModificati.remove(id);
+        todoModificati.remove(Integer.valueOf(id)); // Integer o altrimenti rimuove per indice d'array
 
         ToDoDAO dao = new ToDoPostgreDAO();
 
@@ -591,6 +591,21 @@ public class Controller {
         return dao.ricerca(utente.getUsername(), contenuto, inTitolo, inDescrizione);
     }
 
+    /**
+     * Restituisce la lista di promemoria
+     * che scadono oltre la data data
+     * in input.
+     * Wrapper per {@link ToDoDAO#inScadenza(String, Date)}
+     *
+     * @param scadenza la scadenza
+     * @return the list
+     * @throws SQLException errori durante la ricerca
+     */
+    public List<Map<String, String>> inScadenza(Date scadenza) throws SQLException {
+        ToDoDAO dao = new ToDoPostgreDAO();
+        return dao.inScadenza(utente.getUsername(), scadenza);
+    }
+
     // Funzioni attivita
 
     /**
@@ -625,7 +640,7 @@ public class Controller {
             return;
         }
         AttivitaDAO dao = new AttivitaPostgreDAO();
-        attivitaModificate.remove(idAttivita);
+        attivitaModificate.remove(Integer.valueOf(idAttivita)); // Integer o controlla per indice d'array
 
         dao.rimuovi(idAttivita);
 

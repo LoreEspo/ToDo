@@ -26,7 +26,7 @@ public class MenuCondivisione extends JDialog {
 
         setContentPane(contentPane);
         setModal(true);
-        getRootPane().setDefaultButton(buttonOK);
+        getRootPane().setDefaultButton(aggiungiButton);
 
         setMinimumSize(new Dimension(400, 400));
 
@@ -93,11 +93,11 @@ public class MenuCondivisione extends JDialog {
         panel.add(wrapper);
         panel.revalidate();
         panel.repaint();
-        pack();
 
         cancellaButton.addActionListener(_ -> {
             try {
                 controller.rimuoviCondivisione(id, username);
+                System.out.print(id);
             } catch (SQLException e) {
                 ToDoLogger.getInstance().logError(e);
                 JOptionPane.showMessageDialog(
@@ -108,10 +108,9 @@ public class MenuCondivisione extends JDialog {
                 return;
             }
 
-            panel.remove(jpanel);
+            panel.remove(wrapper);
             panel.revalidate();
             panel.repaint();
-            pack();
         });
     }
 

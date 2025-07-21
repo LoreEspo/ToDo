@@ -1,6 +1,7 @@
 package dao;
 
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -122,4 +123,16 @@ public interface ToDoDAO {
      * @throws SQLException errore durante la ricerca
      */
     List<Map<String, String>> ricerca(String username, String contenuto, boolean inTitolo, boolean inDescrizione) throws SQLException;
+
+    /**
+     * Restituisce la lista di promemoria
+     * che scadono oltre la data data
+     * in input.
+     *
+     * @param username l'autore dei promemoria
+     * @param scadenza la scadenza
+     * @return the list
+     * @throws SQLException errori durante la ricerca
+     */
+    List<Map<String, String>> inScadenza(String username, Date scadenza) throws SQLException;
 }

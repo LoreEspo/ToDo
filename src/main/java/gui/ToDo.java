@@ -498,8 +498,12 @@ public class ToDo {
     private boolean inRitardo() {
         if (scadenza == null)
             return false;
-        Date current = Calendar.getInstance().getTime();
-        return scadenza.compareTo(current) < 0;
+        calendario.set(Calendar.HOUR, 0);
+        calendario.set(Calendar.MINUTE, 0);
+        calendario.set(Calendar.SECOND, 0);
+
+        Date current = calendario.getTime();
+        return current.compareTo(scadenza) > 0;
     }
 
     /// Apri l'esploratore e seleziona l'immagine da

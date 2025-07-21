@@ -2,6 +2,7 @@ package postgredao;
 
 import dao.AttivitaDAO;
 import db.ConnessioneDatabase;
+import gui.ToDo;
 import logger.ToDoLogger;
 
 import java.sql.PreparedStatement;
@@ -53,10 +54,11 @@ public class AttivitaPostgreDAO implements AttivitaDAO {
     public void aggiorna(int id, Map<String, Object> attivita) throws SQLException {
         ConnessioneDatabase conn = ConnessioneDatabase.getInstance();
         PreparedStatement statement = conn.prepareStatement("UPDATE ATTIVITA SET " +
-                "titolo = ?, completato = ? WHERE idTodo = ?");
+                "titolo = ?, completato = ? WHERE idAttivita = ?");
         statement.setString(1, (String) attivita.get(TITOLO));
         statement.setBoolean(2, (boolean) attivita.get(COMPLETATO));
         statement.setInt(3, id);
+        ToDoLogger.getInstance().logQuery(statement.toString());
         statement.execute();
     }
 

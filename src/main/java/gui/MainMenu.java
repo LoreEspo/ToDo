@@ -6,6 +6,7 @@ import logger.ToDoLogger;
 import javax.swing.*;
 import java.awt.*;
 import java.sql.SQLException;
+import java.util.Date;
 
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 
@@ -19,6 +20,7 @@ public class MainMenu {
     private JButton logoutButton;
     private JLabel usernameLabel;
     private JButton ricercaButton;
+    private JButton scadenzaButton;
     private final Controller controller;
     private JFrame frame;
 
@@ -40,6 +42,7 @@ public class MainMenu {
                 }
             }
         });
+        scadenzaButton.addActionListener(_ -> mostraInScadenza());
         logoutButton.addActionListener(_ -> logout());
         logoutButton.setVisible(false);
 
@@ -213,6 +216,28 @@ public class MainMenu {
             );
         }
 
+    }
+
+    /// Seleziona una data e apri il menu per visualizzare i promemoria
+    /// in scadenza.
+    private void mostraInScadenza() {
+        SelettoreData selettoreData = SelettoreData.create(new Date(), false);
+
+        if (selettoreData.getRisposta() == SelettoreData.RISPOSTA_CANCEL) {
+            return;
+        }
+
+        MenuInScadenza menu = MenuInScadenza.create(selettoreData.getData());
+
+        if (menu.getBachecaSelezionata().isEmpty())
+            return;
+
+        for (int i = 0; i < numeroBacheche; i++) {
+            if (controller.getTitoloBacheca(i).equals(menu.getBachecaSelezionata())) {
+                apriBacheca(i);
+                break;
+            }
+        }
     }
 
     /// Crea il frame per una bacheca e mostrala

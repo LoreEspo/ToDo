@@ -28,7 +28,7 @@ public class SelettoreData extends JDialog {
     private Date data;
     private int risposta = RISPOSTA_CANCEL;
 
-    private SelettoreData(Date dataIniziale) {
+    private SelettoreData(Date dataIniziale, boolean mostraRimuovi) {
         setContentPane(contentPane);
         setModal(true);
         getRootPane().setDefaultButton(buttonOK);
@@ -53,7 +53,12 @@ public class SelettoreData extends JDialog {
 
         buttonOK.addActionListener(_ -> onOK());
 
-        buttonRimuovi.addActionListener(_ -> onRimuovi());
+        if (mostraRimuovi) {
+            buttonRimuovi.addActionListener(_ -> onRimuovi());
+        } else {
+            buttonRimuovi.getParent().remove(buttonRimuovi);
+            buttonRimuovi = null;
+        }
 
         buttonCancel.addActionListener(_ -> dispose());
 
@@ -135,8 +140,8 @@ public class SelettoreData extends JDialog {
      * @param dataIniziale la data da cui parte il selettore
      * @return il selettore
      */
-    public static SelettoreData create(Date dataIniziale) {
-        SelettoreData dialog = new SelettoreData(dataIniziale);
+    public static SelettoreData create(Date dataIniziale, boolean mostraRimuovi) {
+        SelettoreData dialog = new SelettoreData(dataIniziale, mostraRimuovi);
         dialog.pack();
         dialog.setVisible(true);
         return dialog;
@@ -148,7 +153,7 @@ public class SelettoreData extends JDialog {
      *
      * @return il selettore
      */
-    public static SelettoreData create() {
-        return create(null);
+    public static SelettoreData create(Date dataIniziale) {
+        return create(dataIniziale, true);
     }
 }

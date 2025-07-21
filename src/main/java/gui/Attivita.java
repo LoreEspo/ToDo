@@ -30,7 +30,9 @@ public class Attivita {
 
         // Crea i vari componenti e li dispone correttamente
         panel = new JPanel(new BorderLayout());
-        titolo = new JTextField(controller.getTitoloAttivita(id));
+        titolo = new JTextField(
+                controller.getTitoloAttivita(id)
+        );
         panel.add(titolo, BorderLayout.CENTER);
         titolo.setBorder(
                 BorderFactory.createBevelBorder(BevelBorder.LOWERED)
