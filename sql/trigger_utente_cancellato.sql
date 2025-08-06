@@ -2,6 +2,10 @@ CREATE OR REPLACE FUNCTION fun_cancellaBachecheVecchioUtente() RETURNS TRIGGER A
 BEGIN
 	DELETE FROM BACHECA
 	WHERE autore = OLD.username;
+
+	DELETE FROM TODO
+	WHERE autore = OLD.username;
+
 	RETURN OLD;
 END $$ LANGUAGE PLPGSQL;
 
